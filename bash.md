@@ -48,11 +48,13 @@
 + %：告诉shell需要在展开字符串之后从字符串的末尾去掉某些内容
 
 ```bash
-	a=”Too longgg”   echo ${a%gg}  # too long
+	a=”Too longgg”   
+	echo ${a%gg}  # too long
 ```
 + \#：告诉shell需要在展开字符串之后从字符串的开头去掉某些内容
 
 ```bash
-	a=”Hello World!”  echo Goodbye${a#Hello}   #Goodbye World!
+	a=”Hello World!”
+	echo Goodbye${a#Hello}   #Goodbye World!
 ```
 
