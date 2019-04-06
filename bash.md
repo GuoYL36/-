@@ -46,7 +46,13 @@
 ### 一些变量及符号
 + ${}：告诉shell展开花括号里的内容
 + %：告诉shell需要在展开字符串之后从字符串的末尾去掉某些内容
-		a=”Too longgg”   echo ${a%gg}  # too long
+
+```bash
+	a=”Too longgg”   echo ${a%gg}  # too long
+```
 + \#：告诉shell需要在展开字符串之后从字符串的开头去掉某些内容
-		a=”Hello World!”  echo Goodbye${a#Hello}   #Goodbye World!
+
+```bash
+	a=”Hello World!”  echo Goodbye${a#Hello}   #Goodbye World!
+```
 
