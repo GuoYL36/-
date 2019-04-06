@@ -11,10 +11,10 @@
 - Optimal binning：利用树学习器，如LightGBM、CatBoost
 - Target encoding：根据类型对目标值求平均来表示
 
-> 「上述任何一种方法都存在优点和缺点，取决于数据和要求。如果变量有很多类型且使用one-hot encoding，会造成内存问题（稀疏问题），可以尝试使用Optimal binning。Label encoding最好别使用，除非碰到类型变量是ordinal的情况，即“cold”为0, “mild”为1, and “hot”为2。word2vec和其它方法也很好，不过需要微调。」
+> 上述任何一种方法都存在优点和缺点，取决于数据和要求。如果变量有很多类型且使用one-hot encoding，会造成内存问题（稀疏问题），可以尝试使用Optimal binning。Label encoding最好别使用，除非碰到类型变量是ordinal的情况，即“cold”为0, “mild”为1, and “hot”为2。word2vec和其它方法也很好，不过需要微调。
 
-###Target encoding
-类型变量x,标签y。对于类型变量中的每一个不同的x，根据标签y值计算平均值，利用这个平均值来替代x。
+### Target encoding
+> 类型变量x,标签y。对于类型变量中的每一个不同的x，根据标签y值计算平均值，利用这个平均值来替代x。
 ```python
 import pandas as pd
 
@@ -64,8 +64,8 @@ df['x_1'] = df['x_1'].map(df.groupby('x_1')['y'].mean())
 |    0.2      |     0.555     |    0    |
 |    0.2      |     0     |    0    |
 
-####存在问题：over-fitting。因为无法保证被替代的类型变量值适用于测试集中。例如类型变量x_1中d值被平均值0替代，因为它只出现1次且相应的y值为0，所以出现了过拟合，因为没有足够的数据保证0可以用来替代d值。
-####解决over-fitting的方法：
+#### 存在问题：over-fitting。因为无法保证被替代的类型变量值适用于测试集中。例如类型变量x_1中d值被平均值0替代，因为它只出现1次且相应的y值为0，所以出现了过拟合，因为没有足够的数据保证0可以用来替代d值。
+#### 解决over-fitting的方法：
 - [x]交叉验证并对结果求平均；
 - [x]additive smoothing;
 
