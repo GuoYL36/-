@@ -23,16 +23,13 @@
 ### ix、loc、iloc、at、iat
 > DataFrame对象的索引方式
 
-+ **ix：**
-> 获取某个位置的值或者切片操作
++ **ix：**获取某个位置的值或者切片操作
 	+ 既可以使用index索引值和columns索引值进行索引，也可以使用下标直接索引；
 
-+ **loc、iloc**
-> 获取某个位置的值或者切片操作
++ **loc、iloc：**获取某个位置的值或者切片操作
 	+ loc 利用DataFrame的index索引值和columns索引值进行索引；
 	+ iloc 利用下标进行索引；
 
-+ **at、iat**
-> 获取某个位置的值
++ **at、iat：**获取某个位置的值
 	+ at 利用DataFrame的index索引值和columns索引值进行索引；
 	+ iat 利用下标进行索引；
