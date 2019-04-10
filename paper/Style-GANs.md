@@ -46,7 +46,7 @@
 ### Fine-Tuning
 > 在ProGAN上对StyleGAN的进一步改进是更新了几个网络超参数，例如训练周期和损失函数，并将最近邻居的up/downscaling替换为双线性采样。虽然这一步骤对于模型性能很重要，但是它的创新性较差，因此这里不再详细描述（本文附录C）。
 
-![An overview of StyleGAN](https://www.lyrn.ai/wp-content/uploads/2018/12/NVIDIA-Style-based-GANs-Chart.png "An overview of StyleGAN")
+![An overview of StyleGAN](https://github.com/GuoYL36/other/tree/master/paper/img/NVIDIA-Style-based-GANs-Chart.png "An overview of StyleGAN")
 
 
 ### Feature disentanglement
