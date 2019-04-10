@@ -6,6 +6,7 @@
 [ProGAN overview](https://www.lyrn.ai/wp-content/uploads/2018/12/ProGAN-chart-1.png "ProGAN overview")
 
 > ProGAN生成高质量图片，但是和很多模型一样，控制生成图片的特定特征是有限的。换句话说，特征是纠缠的，如果对输入稍稍调整，就会影响多个特征。打个比方，现实中只要改变一个基因就会影响多个特征。
+
 [ProGAN progressive training from low to high res layers](https://www.lyrn.ai/wp-content/uploads/2018/12/ProGAN.gif "ProGAN progressive training from low to high res layers")
 
 
