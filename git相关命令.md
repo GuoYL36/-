@@ -1,16 +1,16 @@
 ## git命令——远程仓库拉取、本地仓库更新、工作空间提交等
 
 - [目录](#)
-	- [一、新建代码库](#一、新建代码库)
-	- [二、配置](#二、配置)
-	- [三、增加/删除文件](#三、增加/删除文件)
-	- [四、代码提交](#四、代码提交)
-	- [五、分支](#五、分支)
-	- [六、标签](#六、标签)
-	- [七、查看信息](#七、查看信息)
-	- [八、远程同步](#八、远程同步)
-	- [九、撤销](#九、撤销)
-	- [十、其他](#十、其他)
+	- [一、新建代码库](#新建代码库)
+	- [二、配置](#配置)
+	- [三、增加/删除文件](#增加/删除文件)
+	- [四、代码提交](#代码提交)
+	- [五、分支](#分支)
+	- [六、标签](#标签)
+	- [七、查看信息](#查看信息)
+	- [八、远程同步](#远程同步)
+	- [九、撤销](#撤销)
+	- [十、其他](#其他)
 
 
 ![git过程](https://i.loli.net/2019/04/22/5cbdaf5ccecab.png)
@@ -20,7 +20,7 @@
 > **Repository：仓库区（或本地仓库）**
 > **Remote：远程仓库**
 
-### 一、新建代码库
+### 新建代码库
 ```shell
 # 在当前目录新建一个Git代码库
 $ git init
@@ -32,7 +32,7 @@ $ git init[project-name]
 $ git clone [url]
 
 ```
-### 二、配置
+### 配置
 > Git的设置文件为.gitconfig，它可以在用户主目录下（全局配置），也可以在项目目录下（项目配置）。
 ```shell
 # 显示当前的Git配置
@@ -46,7 +46,7 @@ $ git config[--global] user.name "[name]"
 $ git config[--global] user.email "[email address]"
 
 ```
-### 三、增加/删除文件
+### 增加/删除文件
 ```shell
 # 添加指定文件到暂存区
 $ git add [file1][file2] ...
@@ -71,7 +71,7 @@ $ git rm --cached[file]
 $ git mv[file-original] [file-renamed]
 
 ```
-### 四、代码提交
+### 代码提交
 ```shell
 # 提交暂存区到仓库区
 $ git commit -m[message]
@@ -93,7 +93,7 @@ $ git commit--amend -m [message]
 $ git commit--amend [file1] [file2] ...
 
 ```
-### 五、分支
+### 分支
 ```shell
 # 列出所有本地分支
 $ git branch
@@ -140,7 +140,7 @@ $ git branch -dr[remote/branch]
 
 ```
 
-### 六、标签
+### 标签
 ```shell
 # 列出所有tag
 $ git tag
@@ -171,7 +171,7 @@ $ git checkout -b[branch] [tag]
 
 ```
 
-### 七、查看信息
+### 查看信息
 ```shell
 # 显示有变更的文件
 $ git status
@@ -236,7 +236,7 @@ $ git reflog
 
 ```
 
-### 八、远程同步
+### 远程同步
 ```shell
 # 下载远程仓库的所有变动
 $ git fetch[remote]
@@ -264,7 +264,7 @@ $ git push[remote] --all
 
 ```
 
-### 九、撤销
+### 撤销
 ```shell
 # 恢复暂存区的指定文件到工作区
 $ git checkout[file]
@@ -301,7 +301,7 @@ $ git stash pop
 ```
 
 
-### 十、其他
+### 其他
 ```shell
 # 生成一个可供发布的压缩包
 $ git archive
