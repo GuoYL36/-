@@ -1,3 +1,23 @@
+# Matplotlib画图
+
+- [](#)
+	- [用bar绘制垂直条形图](#用bar绘制垂直条形图)
+	- [用hist绘制柱状图](#用hist绘制柱状图)
+	- [plot曲线图](#plot曲线图)
+	- [scatter绘制散点图](#scatter绘制散点图)
+	- [bar绘制垂直条形图和barh绘制水平条形图](#bar绘制垂直条形图和barh绘制水平条形图)
+	- [fill和fill_between绘制填充图和stackplot绘堆叠图](#fill和fill_between绘制填充图和stackplot绘堆叠图)
+	- [hist绘制柱状图和boxplot绘制箱线图](#hist绘制柱状图和boxplot绘制箱线图)
+	- [imshow显示二维图形](#imshow显示二维图形)
+	- [contour+contourf绘制等高线](#contour+contourf绘制等高线)
+	- [Axes3D绘制三维曲线图](#Axes3D绘制三维曲线图)
+	- [subplot绘制多图](#subplot绘制多图)	
+	- [figure绘制多图](#figure绘制多图)	
+	- [figure图的嵌套](#figure图的嵌套)	
+	- [主次坐标轴](#主次坐标轴)	
+	
+	
+	
 ## 用bar绘制垂直条形图
 + **垂直条形图**
 ```python
@@ -148,7 +168,7 @@ plt.show()
 ![bar绘制垂直条形图和barh绘制水平条形图](https://i.loli.net/2019/04/14/5cb2d43cf32bf.jpg)
 
 
-## fill和fill_between绘制填充图、stackplot绘堆叠图
+## fill和fill_between绘制填充图和stackplot绘堆叠图
 ```python
 def stackplot_data():
     x = np.linspace(0, 10, 100)
@@ -187,7 +207,7 @@ axes[2].stackplot(x, y.cumsum(axis=0), alpha=0.5)
 ![fill和fill_between绘制填充图、stackplot绘堆叠图](https://i.loli.net/2019/04/14/5cb2d50f4aef0.jpg)
 
 
-## hist绘制柱状图、boxplot绘制箱线图
+## hist绘制柱状图和boxplot绘制箱线图
 ```python
 def generate_data():
     means = [0, -1, 2.5, 4.3, -3.6]
