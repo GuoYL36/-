@@ -32,7 +32,7 @@
 	+ 方差、标准差：指出数据分布的散布程度，低标准差表明数据靠近均值。
 
 + **图形**	
-	+ 盒图：用来比较若干个可比较的数据集。
+	+ 盒图：也称箱线图，用来比较若干个可比较的数据集。
 		+ 五数概括：最小值、Q1、Q2、Q3、最大值
 			+ Q2：中位数由盒内的线标记；
 			+ Q3和Q1：盒的端点一般在四分位数上，使得盒的长度是四分位数极差IQR；
@@ -55,21 +55,63 @@
 		+ 对于稀疏数据，余弦度量和Tanimoto系数；
 		+ pearson相关系数：衡量两个数据集是否在一条线上；用来描述两组线性的数据一同变化移动的趋势。
 			+ pearson相关系数等于两个变量的协方差除于两个变量的标准差。
-			+ 连续数据，正态分布，线性关系，用pearson相关系数；上述任一条件不满足，就用spearman相关系数，不能用pearson相关系数；两个定序测量数据之间也用spearman相关系数，不能用pearson相关系数。
+			+ **连续数据**，**正态分布**，**线性关系**，用pearson相关系数；上述任一条件不满足，就用spearman相关系数，不能用pearson相关系数；两个定序测量数据之间也用spearman相关系数，不能用pearson相关系数。
 	
 	+ 应用
 		+ 聚类、离群点分析、最近邻分类等
 
 ## 数据预处理		
 + **数据清理**
-	+ 缺失值处理：
-		+ 忽略元组：缺少类标号时
-		+ 人工填写缺失值
-		+ 使用一个全局常量填充，如：“Unknow”
-		+ 使用属性的中心度量填充：中位数(倾斜数据而言)或均值
-		+ 使用与给定元组属于同一类的所有样本的属性均值或中位数
-		+ 使用最可能的值填充缺失值：决策树、贝叶斯推理
+	
+	+ 缺失值处理
+		+ 识别缺失值
+			+ DataFrame.isnull()
+			+ DataFrame.notnull()
+			+ DataFrame.isna()
+			+ DataFrame.notna()
+			
+		+ 处理缺失值
+			+ 忽略元组：缺少类标号时,DataFrame.dropna(self, axis=0, how='any', thresh=None, subset=None, inplace=False)
+			+ 人工填写缺失值：DataFrame.fillna(value=None, method=None, axis=None, inplace=False, limit=None)
+				+ 使用一个全局常量填充，如：“Unknow”
+				+ 使用属性的中心度量填充：中位数(倾斜数据而言)或均值
+				+ 使用与给定元组属于同一类的所有样本的属性均值或中位数
+				+ 使用最可能的值填充缺失值：决策树、贝叶斯推理
+	
+	+ 重复数据处理
+		+ 样本重复：pandas.DataFrame(Series).drop_duplicates(self, subset=None, keep='first', inplace=False)
 		
+		+ 特征重复
+			+ 通用
+			```python
+			def FeatureEquals(df):
+			    dfEquals = pd.DataFrame([], columns=df.columns, index=df.columns)
+				for i in df.columns:
+				    for j in df.columns:
+					    dfEquals.loc[i, j] = df.loc[:,i].equals(df.loc[:,j])
+				return dfEquals
+			
+			```
+			
+			+ 数值型特征
+			```python
+			def drop_feature(data, way='pearson', assoRate=1.0):
+			    '''
+				此函数用于求取相似度大于assoRate的两列中的一个，主要目的是用于去除数值型特征的重复。
+				data: 数据框，无默认
+				assoRate: 相似度，默认为1
+			    '''
+				assoMat = data.corr(method = way)
+				delCol = []
+				length = len(assoMat)
+				for i in range(length):
+				    for j in range(i+1, length):
+					    if assoMat.iloc[i, j] >= assoRate:
+						    delCol.append(assoMat.columns[j])
+				return delCol
+			
+			```
+	
 	+ 平滑处理
 		+ np.log1p：log(x+1)，对偏度较大的数据进行转化，使其更加服从高斯分布；能避免复值问题——复值指一个自变量对应多个因变量。
 		+ np.exmp1：exp(x)-1，np.log1p的逆运算。
@@ -82,6 +124,13 @@
 		+ 回归
 		+ 离群点分析
 			+ 利用聚类来检测离群点
+			
+	+ 合并数据
+		+ 数据堆叠：pandas.concat(objs, axis=0, join='outer', join_axes=None, ignore_index=False, keys=None, levels=None, names=None, verify_integrity=False, copy=True)
+		+ 主键合并：pandas.merge(left, right, how='inner', on=None, left_on=None, right_on=None, left_index=False, right_index=False, sort=False,suffixes=('_x', '_y'), copy=True, indicator=False)
+		+ 重叠合并：pandas.DataFrame.combine_first(self, other)
+		
+	
 		
 + **数据集成**
 	+ 定义：合并来自多个数据存储的数据。
@@ -113,14 +162,17 @@
 	+ 属性构造：可以由给定的属性构造新的属性并添加到属性集中；
 	+ 聚集：对数据进行汇总或聚集；
 	+ 规范化：把属性数据按比例缩放，使之落入一个特定的小区间；
-		+ 最小-最大规范化
+		+ 标准差标准化：sklearn.preprocessing.StandardScaler
+		+ 最小-最大规范化：也称离差标准化，sklearn.preprocessing.MinMaxScaler
 		+ z分数规范化
 		+ 小数定标规范化：通过移动属性值的小数点位置进行规范化；
-	+ 离散化：数值属性的原始值用区间标签或概念标签替换；
+	+ 离散化：数值属性的原始值用区间标签或概念标签替换；pandas.cut(x, bins, right=True, labels=None, retbins=False, precision=3, include_lowest=False)
 		+ 通过分箱离散化
 		+ 通过直方图分析离散化
 		+ 通过聚类、决策树和相关分析离散化
 	+ 由标称数据产生概念分层
+	+ 哑变量处理：也叫独热编码，one-hot Encoding
+		+ 将非数值类型变量进行独热编码：pandas.get_dummies(data, prefix=None, prefix_sep='_', dummy_na=False, columns=None, sparse=False, drop_first=False)
 
 + **特征分箱的方法**
 	+ **有监督**
@@ -309,6 +361,31 @@
 	+ 统计学方法
 		+ 参数方法：假定正常数据对象服从某种参数分布。
 			+ 基于正态分布的一元离群点检测：仅涉及一个属性或变量的数据为一元数据。使用最大似然检测一元数据，并把低概率的点识别为离群点。
+				+ 3\theta原则——只适用于正态分布
+				```python
+				def outRange(Ser1):
+				    boolInd = (Ser1.mean()-3*Ser1.std() > Ser1) | (Ser1.mean()+3*Ser1.var() < Ser1) # 找出Series中所有离群点
+					index = np.arange(Ser1.shape[0])[boolInd]
+					outrange = Ser1.iloc[index]
+					
+					return outrange
+				
+				```
+				+ Grubb检验（最大标准残差检验）
+				
+				+ 箱线图分析
+				```python
+				def boxOutRange(Ser):
+				   '''
+				   Ser: 进行异常值分析的DataFrame的某一列
+				   '''
+				   Low = Ser.quantile(0.25)-1.5*(Ser.quantile(0.75)-Ser.quantile(0.25)) 
+				   Up = Ser.quantile(0.75)+1.5*(Ser.quantile(0.75)-Ser.quantile(0.25))
+				   index = (Ser<Low) | (Ser>Up)
+				   outlier = Ser.loc[index]
+				   
+				   return outlier
+				```
 			+ 多元离群点检测：把多元离群点检测任务转换成一元离散点检测问题。使用马哈拉诺比斯距离检测多元离群点。或使用卡方统计量的多元离群点检测。
 			+ 使用混合参数分布检测多元离群点：使用EM算法学习参数
 			+ 使用多个簇检测多元离群点
