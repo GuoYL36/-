@@ -12,7 +12,9 @@
 		- [GBK](#GBK)
 		- [Unicode](#Unicode)
 		- [UTF-8](#UTF-8)
-		- [python中文乱码问题](#python中文乱码问题)		
+		- [python中文乱码问题](#python中文乱码问题)	
+	- [类继承](#类继承)
+		- [super的作用](#super的作用)
 
 [python内存可视化](http://www.pythontutor.com/visualize.html#mode=display)
 
@@ -111,3 +113,133 @@ C语言默认存放字符串就是用的MBCS格式。从原理上来说，这样
 + raw_input
 	+ raw_input是获取用户输入值的，获取到的用户输入值和当前运行环境编码有关，比如 cmd 下默认编码是gbk，那么输入的汉字就是以gbk编码，而不管 python文件编码格式和编码声明。
 
+----
+
+## 类继承
+
+### super的作用
+> 当父类多次被子类调用时，只执行了一次，优化了执行逻辑，解决子类调用父类方法的一些问题。
+
++ 例子
+	+ 子类中调用父类的最简单方法为
+		```python
+		class FooParent:                # 父类
+			def bar(self, message):
+				print(message)
+	
+		class FooChild(FooParent):          # 子类
+			def bar(self, message):
+				FooParent.bar(self, message)
+	
+		>>> FooChild().bar("Hello, Python.")    # 结果：Hello, Python
+	
+		```
+	+ 上述方法存在问题：
+		+ 如果父类名称修改，则所有继承的子类都要修改。因此，python引入super()机制。
+			```python
+			class FooParent:                # 父类
+				def bar(self, message):
+					print(message)
+	
+			class FooChild(FooParent):          # 子类
+				def bar(self, message):
+					super(FooChild, self).bar(message)
+	
+			>>> FooChild().bar("Hello, Python.")    # 结果：Hello, Python
+	
+			```
+		+ 并且在多继承中，由于内部处理机制不同，简单方法的父类会被多次执行。
+			```python
+			# 简单方法的父类会被多次执行：
+			class A:
+				def __init__(self):
+					print("Enter A")
+					print("Leave A")
+					
+			class B(A):
+				def __init__(self):
+					print("Enter B")
+					A.__init__(self)
+					print("Leave B")
+					
+			class C(A):
+				def __init__(self):
+					print("Enter C")
+					A.__init__(self)
+					print("Leave C")
+					
+			class D(A):
+				def __init__(self):
+					print("Enter D")
+					A.__init__(self)
+					print("Leave D")
+					
+			class E(B,C,D):
+				def __init__(self):
+					print("Enter E")
+					B.__init__(self)
+					C.__init__(self)
+					D.__init__(self)
+					print("Leave E")
+					
+			>>> E()
+			结果:
+				Enter E
+				Enter B
+				Enter A
+				Leave A
+				Leave B
+				Enter C
+				Enter A
+				Leave A
+				Leave C
+				Enter D
+				Enter A
+				Leave A
+				Leave D
+				Leave E
+			
+			# super机制里可以保证公共父类仅被执行一次，至于执行的顺序按照MRO方法解析顺序执行。
+			class A:
+				def __init__(self):
+					print("Enter A")
+					print("Leave A")
+					
+			class B(A):
+				def __init__(self):
+					print("Enter B")
+					super(B, self).__init__()
+					print("Leave B")
+					
+			class C(A):
+				def __init__(self):
+					print("Enter C")
+					super(C, self).__init__()
+					print("Leave C")
+					
+			class D(A):
+				def __init__(self):
+					print("Enter D")
+					super(D, self).__init__()
+					print("Leave D")
+					
+			class E(B,C,D):
+				def __init__(self):
+					print("Enter E")
+					super(E, self).__init__()
+					print("Leave E")
+					
+			>>> E()			
+			结果：
+				Enter E
+				Enter B
+				Enter C
+				Enter D
+				Enter A
+				Leave A
+				Leave D
+				Leave C
+				Leave B
+				Leave E
+			
+			```
