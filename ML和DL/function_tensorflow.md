@@ -1,5 +1,9 @@
 # tensorflow中的函数使用
 
+- [content]
+	- [sequence_mask](#sequence_mask函数)
+	- [乘法](#直接乘和matmul和dot)
+
 ## sequence_mask函数
 > tf.sequence_mask(lengths, maxlen=None, dtype=tf.bool, name=None)
 > 返回值：布尔型mask张量，shape=(len(lengths), maxlen)
@@ -13,6 +17,8 @@
 	 [True, True, False, False, False]]       # 2表示前2个为True，其余为False
 		
 	```
+----	
+
 ## 直接乘和matmul和dot
 
 + 直接乘X
@@ -111,7 +117,7 @@
 	```
 	+ ![示例2](https://i.loli.net/2019/06/16/5d06151e7d80479439.jpg)
 
-
+----
 
 
 
