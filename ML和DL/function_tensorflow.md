@@ -16,7 +16,7 @@
 ## 直接乘和matmul和dot
 
 + 直接乘X
-	+
+	
 	```python
 	v1 = tf.constant([[1,2],[4,5]])
 	v2 = tf.constant([[3,7],[6,1]])
@@ -27,7 +27,7 @@
 	```
 
 + matmul
-	+
+	
 	```python
 	v1 = tf.constant([[1,2],[4,5]])
 	v2 = tf.constant([[3,7],[6,1]])	
@@ -38,7 +38,7 @@
 	```
 
 + tensordot
-	+
+	
 	```python
 	v1 = tf.constant([[1,2],[4,5]])
 	v2 = tf.constant([[3,7],[6,1]])
@@ -52,7 +52,7 @@
 	```
 
 + dot
-	+ 
+	
 	```python
 	v1 = tf.constant([[1,2],[4,5]])
 	v2 = tf.constant([[3,7],[6,1]])
