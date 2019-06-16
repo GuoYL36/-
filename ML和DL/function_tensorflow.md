@@ -13,8 +13,54 @@
 	 [True, True, False, False, False]]       # 2表示前2个为True，其余为False
 		
 	```
+## 直接乘和matmul和dot
 
++ 直接乘X
+	+
+	```python
+	v1 = tf.constant([[1,2],[4,5]])
+	v2 = tf.constant([[3,7],[6,1]])
+	v1 x V2 =                             # 对应位置相乘
+	[[3, 14],
+	 [24, 5]]
+	
+	```
 
++ matmul
+	+
+	```python
+	v1 = tf.constant([[1,2],[4,5]])
+	v2 = tf.constant([[3,7],[6,1]])	
+	tf.matmul(v1, v2) =                    # 矩阵乘法
+	[[15, 9],
+	 [42, 33]]
+		
+	```
+
++ tensordot
+	+
+	```python
+	v1 = tf.constant([[1,2],[4,5]])
+	v2 = tf.constant([[3,7],[6,1]])
+	tf.tensordot(v1, v2, 1) =         # 矩阵乘法
+	[[15, 9],
+	 [42, 33]]	
+	
+	示例1：当参数a和参数b是矩阵(2阶)时，axes=1相当于矩阵乘法。
+	示例2：当参数a和参数b是矩阵(2阶)时，axes=[[1],[0]]相当于矩阵乘法。
+	
+	```
+
++ dot
+	+ 
+	```python
+	v1 = tf.constant([[1,2],[4,5]])
+	v2 = tf.constant([[3,7],[6,1]])
+	tf.keras.backend.dot(v1, v2) =         # 矩阵乘法
+	[[15, 9],
+	 [42, 33]]
+	 
+	```
 
 
 
