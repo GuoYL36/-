@@ -308,8 +308,6 @@ C语言默认存放字符串就是用的MBCS格式。从原理上来说，这样
 
 > 为了使得**对属性的访问既安全又方便**，考虑使用@property包装器来包装getter和setter方法。
 
-+ 
-
 	```python
 	class Person(object):
 		def __init__(self, name, age):
