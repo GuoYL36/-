@@ -2,7 +2,8 @@
 
 - [目录](#)
 	- [list和array的底层实现以及区别](#list和array的底层实现以及区别)
-	- [函数中的各种参数](#函数中的各种参数)
+	- [函数](#函数)
+		- [函数中的各种参数](#函数中的各种参数)
 	- [DataFrame](#DataFrame)
 	- [编码](#编码)
 		- [ASCII](#ASCII)
@@ -15,7 +16,12 @@
 		- [python中文乱码问题](#python中文乱码问题)	
 	- [类继承](#类继承)
 		- [super的作用](#super的作用)
-		- [python中文乱码问题](#python中文乱码问题)
+		- [访问可见性](#访问可见性)
+		- [装饰器](#装饰器)
+		- [slots魔法](#slots魔法)
+		- [静态方法和类方法](#静态方法和类方法)
+		- [抽象类](#抽象类)
+		- [内建元类type](#内建元类type)
 	- [进程、线程、协程](#进程和线程和协程)
 		- [进程](#进程)
 		- [线程](#线程)
@@ -37,7 +43,9 @@
 	+ array中数据类型时一样的，而list中可以有各种类型数据；
 	+ array一般计算起来比list快，因为list涉及到类型的转换问题；
 	
-## 函数中的各种参数
+## 函数
+
+### 函数中的各种参数
 > 定义和调用时不同类型参数的顺序：<br>		1. 位置参数<br>		2. 默认参数<br>		3. 可变参数<br>		4. 关键字参数.
 
 + 位置参数：根据函数定义的参数位置传递参数；
@@ -250,6 +258,294 @@ C语言默认存放字符串就是用的MBCS格式。从原理上来说，这样
 				Leave E
 			
 			```
+
+### 访问可见性
++ **公开的**
+	+ 系统定义名字：前后均有一个双下划线
+
+
++ **保护的**
+	+ 命名时可以用一个单划线作为开头：_xxx
+	
++ **私有的**
+	+ 命名时可以用两个下划线作为开头：__xxx
+	+ 访问私有成员变量的正确方式：
+		+ 私有变量：实例对象名._类名__变量名
+		+ 私有方法：实例对象名._类名__方法名()
+
+	```python
+	class Test:
+		def __init__(self, foo):
+			self.__foo = foo    # 私有属性
+			self.name = foo     # 公开属性
+	
+		def __bar(self):        # 私有方法
+			print(self.__foo)     
+			print(self.name)
+			print('__bar')
+	
+		def bar(self):          # 公有方法
+			print(self.__foo)
+			print('__bar')
+		
+	# def main():
+		# test = Test("hello")
+		# test.bar()
+		#test.__bar()    # 报错AttributeError: 'Test' object has no attribute '__bar'
+		# print(test.__foo)  # 报错AttributeError: 'Test' object has no attribute '__foo'
+	
+	def main():
+		test = Test("hello")
+		test._Test__bar()     # 访问私有方法的方式
+		print(test._Test__foo)     # 访问私有变量的方式
+	
+	if __name__ == "__main__":
+		main()
+
+```	
+
+### 装饰器
+> 为了使得**对属性的访问既安全又方便**，考虑使用@property包装器来包装getter和setter方法。
+
++ 
+
+	```python
+	class Person(object):
+		def __init__(self, name, age):
+			self._name = name
+			self._age = age
+		
+		# 访问器 - getter方法
+		@property
+		def name(self):
+			return self._name
+	
+		# 访问器 - getter方法	
+		@property
+		def age(self):
+			return self._age
+		
+		# 修改器 - setter方法
+		@age.setter
+		def age(self, age):
+			self._age = age
+		
+		def play(self):
+			if self._age <= 16:
+				print("%s正在玩飞行棋."%self._name)
+			else:
+				print("%s正在玩斗地主."%self._name)
+
+	def main():
+		person = Person("王大锤", 12)
+		person.play()
+		person.age = 22
+		person.play()
+		person.name = "白元芳"     # 报错AttributeError：can't set attribute
+	
+	if __name__ == "__main__":
+		main()
+	
+	```
+### slots魔法
+> python是一门动态语言，允许程序运行时给对象绑定新的属性或方法。如果需要限定自定义类型的对象只能绑定某些属性，可以通过在类中定义__slots__变量来进行限定。
+> __slots__变量的限定只对当前类的对象生效，对子类并不起任何作用。
+
+	```python
+	class Person(object):
+
+		# 限定Person对象只能绑定_name, _age和_gender属性
+		__slots__ = ('_name', '_age', '_gender')
+		def __init__(self, name, age):
+			self._name = name
+			self._age = age
+		
+		# 访问器 - getter方法
+		@property
+		def name(self):
+			return self._name
+	
+		# 访问器 - getter方法	
+		@property
+		def age(self):
+			return self._age
+		
+		# 修改器 - setter方法
+		@age.setter
+		def age(self, age):
+			self._age = age
+		
+		def play(self):
+			if self._age <= 16:
+				print("%s正在玩飞行棋."%self._name)
+			else:
+				print("%s正在玩斗地主."%self._name)
+
+	def main():
+		person = Person("王大锤", 12)
+		person.play()
+		person.age = 22
+		person.play()
+		person._gender = '男'
+		print("person gender: %s"%person._gender)
+		person._is_gay = True     # 报错AttributeError：'Person' object has no attribute '_is_gay'
+	
+	if __name__ == "__main__":
+		main()
+	
+	```
+
+### 静态方法和类方法
+> 在类中定义的方法并不需要全都是对象方法(发送给对象的消息)，还可以是静态方法和类方法。
+
++ 静态方法：在对象未创建之前，调用该方法
+	```python
+	from math import sqrt
+
+	class Triangle(object):
+	
+		def __init__(self,a,b,c):
+			self._a = a
+			self._b = b
+			self._c = c
+		
+		# 定义静态方法
+		@staticmethod
+		def is_valid(a,b,c):
+				return a+b>c and b+c>a and a+c>b
+		
+		def perimeter(self):
+			return self._a + self._b + self._c
+	
+		def area(self):
+			half = self.perimeter() / 2
+			return 	sqrt(half*(half-self._a)*(half-self._b)*(half-self._c))
+		
+	def main():
+		a,b,c = 3,4,5
+		
+		# 静态方法和类方法都是通过给类发消息来调用的
+		if Triangle.is_valid(a,b,c):
+			t = Triangle(a,b,c)
+			#print(t.perimeter)
+			# 也可以通过给类发消息来调用对象方法但是要传入接收消息的对象作为参数
+			print(Triangle.perimeter(t))
+			print(t.area())
+			print(Triangle.area(t))
+		else:
+			print("无法构建三角形。")
+
+	if __name__ == "__main__":
+		main()
+	
+	```
++ 类方法：类方法的第一个参数约定名是cls，它代表当前类相关信息的对象(类本身是一个对象，也称类的元数据对象)，通过这个参数可以获取和类相关的信息并创建出类的对象。
+	```python
+	from time import time, localtime, sleep
+	
+	class Clock(object):
+		"""数字时钟"""
+		def __init__(self, hour=0, minute=0, second=0):
+			self._hour = hour
+			self._minute = minute
+			self._second = second
+		
+		# 定义类方法
+		@classmethod
+		def now(cls):
+			ctime = localtime(time())
+			return cls(ctime.tm_hour, ctime.tm_min, ctime.tm_sec)     # 将传入的类名赋给cls并创建对象
+			
+		def run(self):
+			"""走字"""
+			self._second += 1
+			if self._second == 60:
+				self._second = 0
+				self._minute += 1
+				if self._minute == 60:
+					self._minute = 0
+					self._hour += 1
+					if self._hour == 24:
+						self._hour = 0
+						
+		def show(self):
+			"""显示时间"""
+			return '%02d:%02d:%02d' %(self._hour, self._minute, self._second)
+
+	def main():
+		# 通过类方法创建对象并获取系统时间
+		clock = Clock.now()
+		while True:
+			print(clock.show())
+			sleep(1)
+			clock.run()
+			
+	if __name__ == "__main__":
+		main()
+
+	```
+	
+### 抽象类	
+> 抽象类指不能够利用该类创建对象，只能用于被其它类继承。如果一个类中存在抽象方法，那么这个类就不能实例化。
+> python语言需要通过abc模块的ABCMeta元类和abstractmethod包装器来达到抽象类的效果。
+
+	```python
+	from abc import ABCMeta, abstractmethod
+	
+	class Pet(object, metaclass=ABCMeta):     # metaclass是可以用来创建类，其内部会返回一个类。ABCMeta是让类变成一个纯虚类，用abstractmethod修饰，子类必须实现某个方法。
+		'''宠物'''
+		
+		def __init__(self,nickname):
+			self._nickname = nickname
+			
+		@abstractmethod
+		def make_voice(self):
+			'''发出声音'''
+			pass
+			
+	class Dog(Pet):
+		'''狗'''
+		
+		def make_voice(self):
+			print("%s: 汪汪汪..."%self._nickname)
+		
+	class Cat(Pet):
+		'''猫'''
+		
+		def make_voice(self):
+			print("%s: 喵...喵..."%self._nickname)
+			
+	def main():
+		pets = [Dog("旺财"), Cat("凯迪"), Dog("大黄")]
+		for pet in pets:
+			pet.make_voice()
+			
+	if __name__ == "__main__":
+		main()
+	
+	```
+### 内建元类type
++ **元类的目的**
+	+ 为了当**创建类**时能够自动地改变类
+		+ 拦截类的创建
+		+ 修改类的定义
+		+ 返回修改之后的类
++ type可以接受一个类的描述作为参数，然后返回一个类
+	```python
+	type(类名, 父类的元组(针对继承的情况，可以为空), 包含属性的字典(名称和值))
+	Foo = type('Foo', (), {'bar':True})
+	FooChild = type('FooChild', (Foo,), {'echo_bar': echo_bar})
+	
+	type的三个参数分别是：
+		name: 要生产的类名
+		bases: 包含所有基类的tuple
+		dict: 类的所有属性，是键值对的字典
+
+	```
++ type类和object类的关系
+	+ python中的所有类是type类的实例，但是元类是type的子类，object是type的实例，而type是object的子类
+
+	
 ----
 
 ## 进程和线程和协程
