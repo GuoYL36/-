@@ -38,6 +38,7 @@
 		
 
 ## RDD：弹性分布式数据集（Resilient distributed datasets）
+> 分布式的Java对象的集合
 + 弹性：RDD进行partition，每个block最大只能存放128M，被分片到node的数据先存放于内存中，如果数据大小大于block大小，则存放于硬盘中，基于内存和硬盘的存取方式就是弹性。
 
 
@@ -154,12 +155,88 @@
 + org.apache.spark.rdd
     + PartitionCoalescer.coalesce: 合并RDD的分区 
 
++ org.apache.spark.mllib.evaluation
+    + BinaryClassificationMetrics：第一个参数为预测列，第二个参数为实际标签列
 
 
 
 
+## DataFrame
+> 分布式的Row对象的集合，即：Dataset[Row]，可以自定义case class来获取每一行的信息
+> 一般通过构建dataframe视图，利用spark.sql来对列求取最大值、最小值、平均值等;
+> spark中有单独的column实例，但是一般对列进行运算还是会基于dataframe利用spark.sql来使用
+
+### Row
++ 表示一行数据，可以通过索引获取元素值
+```scala
+    
+    val a: DataFrame = Seq((1,2,3)).toDF("a","b","c")
+    var b: Array[Row] = a.collect()
+    var c: Row = b(0)
+    var d: Integer = c.getInt(0)  // 输出为1
+```
+
++ 取列操作：有的时候一个解析不了可以更换
+    + df(列名)
+    + column(列名)：位于org.apache.spark.sql.functions中
+    + col(列名)：位于org.apache.spark.sql.functions中
+    + $列名
+    
 
 
+
+### Dataset、dataframe和RDD的区别
+> https://www.cnblogs.com/Transkai/p/11360603.html
++ 数据格式
+    + RDD
+        |1, 张三, 23|
+        |2, 李四, 35|
+    + DataFrame
+        | ID:String | Name:String | Age:int |
+        | :-------: |  :--------: | :-----: |
+        |     1     |    张三     |    23   |
+        |     2     |    李四     |    35   |
+    + Dataset
+        + 
+            |value:String|
+            | 1, 张三, 23|
+            | 2, 李四, 35|
+        + 
+            |value:People[age:bigint, id:bigint, name:String]|
+            |People(id=1, name="张三", age=23)|
+            |People(id=2, name="李四", age=35)|
+        
++ dataframe一般只针对列进行运算
++ RDD一般针对行进行运算
++ 转换
+    + DataFrame、DataSet转RDD
+    ```scala
+        val rdd1 = testDF.rdd  // DataFrame
+        val rdd2 = testDS.rdd  // DataSet
+    ```
+    + RDD转DataFrame
+    ```scala
+        import spark.implicits._
+        val testDF = rdd.map {line => (line._1, line._2)}.toDF("col1","col2")
+    ```
+    + RDD转DataSet
+    ```scala
+        import spark.implicits._
+        case class Person(name:String, age:Int)
+        val testDS = rdd.map {line => Person(line._1, line._2)}.toDS
+        
+    ```
+    + DataSet转DataFrame
+    ```scala
+        import spark.implicits._
+        val testDF = testDS.toDF
+    ```
+    + DataFrame转DataSet
+    ```scala
+        import spark.implicits._
+        case class Person(name:String, age:Int)
+        val testDS = testDF.as(Person)
+    ```
 
 
 
