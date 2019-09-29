@@ -189,22 +189,26 @@
 > https://www.cnblogs.com/Transkai/p/11360603.html
 + 数据格式
     + RDD
-        |1, 张三, 23|
-        |2, 李四, 35|
+    ||
+    | :---------: |
+    | 1, 张三, 23 |
+    | 2, 李四, 35 |
     + DataFrame
-        | ID:String | Name:String | Age:int |
-        | :-------: |  :--------: | :-----: |
-        |     1     |    张三     |    23   |
-        |     2     |    李四     |    35   |
+    | ID:String | Name:String | Age:int |
+    | :-------: |  :--------: | :-----: |
+    |     1     |    张三     |    23   |
+    |     2     |    李四     |    35   |
     + Dataset
-        + 
-            |value:String|
-            | 1, 张三, 23|
-            | 2, 李四, 35|
-        + 
-            |value:People[age:bigint, id:bigint, name:String]|
-            |People(id=1, name="张三", age=23)|
-            |People(id=2, name="李四", age=35)|
+        + 第一种 
+          | value:String |
+          | :----------: |
+          | 1, 张三, 23  |
+          | 2, 李四, 35  |
+        + 第二种
+          | value:People[age:bigint, id:bigint, name:String] |
+          | :-----------------------------: |    
+          |People(id=1, name="张三", age=23)|
+          |People(id=2, name="李四", age=35)|
         
 + dataframe一般只针对列进行运算
 + RDD一般针对行进行运算
