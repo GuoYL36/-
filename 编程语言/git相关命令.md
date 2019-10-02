@@ -266,6 +266,22 @@ $ git push[remote] --all
 
 ```
 
++ **远程同步例子**
+    + 例子描述：从远程分支拉取最新的代码，并与本地分支进行合并。
+    ```git-bash
+    // 1、查看远程仓库（假定有多个仓库）
+    git remote -v
+    // 2、从远程仓库的某个分支(假定为origin仓库的master分支)获取最新版本代码下载到本地，并新建一个分支temp
+    git fetch origin master:temp
+    // 3、查看temp分支与本地分支的不同
+    git diff temp
+    // 4、将temp分支与本地分支合并，合并后本地分支的代码就是最新版本代码，此时在本地开发后，直接提交的远程即可。
+    git merge temp
+    // 5、删除temp分支
+    git branch -d temp
+    
+    ```
+
 ### 撤销
 ```shell
 # 恢复暂存区的指定文件到工作区
