@@ -195,15 +195,39 @@
         ({1})：表达式里是一个语句块
         {(1)}：语句块里是一个表达式
         ```
-+ implicit
++ implicit：隐式转换
+
++ map
+    + map(_._2)：等价于map(t => t._2)，t是个2项以上的元组，即(1,2,3),(4,5,6),...;
+    + map(_._2, _)：**网上说**等价于map(t => t._2, t)，返回元组的第二项及元组，假如元组是(1,2,3),(4,5,6),...，返回：2,(1,2,3)，5,(4,5,6)
+    + map(t => (t._2, t))：上面写法在编译器里报错，改成这种写法没问题。
 
 + Option常用方法
     + getOrElse：获取元组中存在的元素或使用其默认值。
         + 强制规定返回值类型：getOrElse[Int]
 
-
-
-
++ apply
+    + 什么情况下会调用apply?
+        + **实例化**
+            + 一般对象的实例化方法：A a=new A()，此时调用的是**this构造器**。
+            + 如果有apply方法：A a=A()，此时调用的是A().apply()，返回的是**伴生对象**.**只要使用apply实例化的类，必有伴生对象**。**伴生对象中有apply方法，构造类的时候一般不用new**。
+            + 为什么不用构造器？因为对于嵌套表达式(Array(Array("1","2"),Array("3","4")))，**省去new关键字方便很多**。
+            + **Scala中很多类默认都是有伴生对象的**.
+        + **查找属性**
+            + 如果对象是集合，后面使用apply，则具有查找功能。
+ 
++ zip和zipWithIndex
+    + zipWithIndex: 自动加索引，索引从0开始
+    ```scala
+    val name = Array("zhangsan","lisi","wangwu")
+    name.zipWithIndex  // 输出：Array(("zhangsan",0),("lisi",1),("wangwu",2))
+    ```
+    + zip：合并两个集合成为一个二元组集合
+    ```scala
+    val name = Array("zhangsan","lisi","wangwu")
+    val age = Array(18,19,20)
+    val out = name zip age   //输出：Array(("zhangsan",18),("lisi",19),("wangwu",20))
+    ```
 
 ## SPARK
 + 分布式：就是一个RDD会被partition到不同node上
