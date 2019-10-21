@@ -178,6 +178,16 @@
     + 参数名:_* ：将该参数当作参数序列处理
     + _ ：通配符
         + a._1：表示a中第一个元素
+    
+    + 4种操作符：::, +:, :+, :::, ++
+        + **::**被称为cons，意为构造，向队列的头部追加数据，创造新的列表。可用于pattern match。
+        ```scala
+        x::list  # 等价于list.::(x)，无论x是列表与否，都只将成为新生成列表的第一个元素
+        ```
+        + **:+**为用于在尾部追加元素
+        + **+:**为用于在头部追加元素
+        + **:::**方法**只能**用于**连接两个List类型**的集合。
+        + **++**方法用于连接两个集合
 
 + 字符串插值：将变量引用直接插入处理过的字面字符中
     + s字符串插值器：在任何字符串前加上s，就可以直接在字符串中使用变量或表达式。
@@ -218,19 +228,34 @@
         + **查找属性**
             + 如果对象是集合，后面使用apply，则具有查找功能。
  
-+ zip和zipWithIndex
++ zip和zipWithIndex和zipWithUniqueId
     + zipWithIndex: 自动加索引，索引从0开始
     ```scala
     val name = Array("zhangsan","lisi","wangwu")
     name.zipWithIndex  // 输出：Array(("zhangsan",0),("lisi",1),("wangwu",2))
+    
+    // 将RDD中的元素和这个元素在RDD中的索引号组合成键/值对
+    var rdd1 = sc.makeRDD(Seq("A","B","R","D","F"),2)
+    rdd1.zipWithIndex().collect()  // 输出：Array[(String, Long)]=Array((A,0),(B,1),(R,2),(D,3),(F,4))
     ```
     + zip：合并两个集合成为一个二元组集合
     ```scala
     val name = Array("zhangsan","lisi","wangwu")
     val age = Array(18,19,20)
     val out = name zip age   //输出：Array(("zhangsan",18),("lisi",19),("wangwu",20))
+    
+    // 这样写会多打印一个()：out.foreach(println) // 改成这样: out.foreach{case(name, age)=> println(name,age)}
     ```
-    + 这样写会多打印一个()：out.foreach(println) // 改成这样: out.foreach{case(name, age)=> println(name,age)}
+    + zipWithUniqueId：将RDD中元素和一个唯一ID组合成键值对，该唯一ID生成算法如下：每个分区中第一个元素的唯一ID值为**该分区索引号**；每个分区中第N个元素的唯一ID值为**前一个元素的唯一ID值+该RDD总的分区数**。
+    ```scala
+    var rdd1 = sc.makeRDD(Seq("A","B","C","D","E","F"),2)
+    rdd1.zipWithUniqueId().collect()   //输出：Array((A,0),(B,2),(C,4),(D,1),(E,3),(F,5))
+    //总分区数为2
+    //第一个分区第一个元素A的ID为0，第二个分区第一个元素D的ID为1
+    //第一个分区第二个元素B的ID为0+2=2，第二个分区第二个元素E的ID为1+2=3
+    //第一个分区第三个元素C的ID为2+2=4，第二个分区第三个元素F的ID为3+2=5
+    ```
+    
 
 ## SPARK
 + 分布式：就是一个RDD会被partition到不同node上
