@@ -13,3 +13,4 @@
 ### 推荐网站
 
 [Google Style Guides](https://github.com/google/styleguide)
+[GNOME DEVELOPER](https://developer.gnome.org/gtk-doc-manual/stable/documenting.html.zh_CN)
