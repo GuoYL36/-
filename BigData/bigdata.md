@@ -412,7 +412,22 @@
     + column(列名)：位于org.apache.spark.sql.functions中
     + col(列名)：位于org.apache.spark.sql.functions中
     + $列名
+    + 批量转换列格式
+    ```scala
+    import org.apache.spark.sql.functions._
+    import org.apache.spark.sql.types._
+    // 第一种方法
+    val columns = df.columns
+    var var_df = df
+    for(column<-columns){
+        var_df = var_df.withColumn(column, col(column).cast(DoubleType))
+    }
     
+    // 第二种方法
+    val columns = df.columns
+    val newTypeColumns = columns.map(column=>col(column).cast(DoubleType))
+    df.select(newTypeColumns:_*)
+    ```
 
 
 
