@@ -9,6 +9,24 @@
 		+ 访问权限
 	+ EditLog: 记录对数据进行的诸如创建、删除、重命名等操作
 
+### Hadoop基本命令
++ 初始化**（第一次使用）**：保证一致性
+    + 找到配置里的tmp目录并删除
+    + 重新进行格式化：hadoop name -format
++ 开启hadoop集群：/sbin/start-dfs.sh
++ 查看可执行指令：hadoop fs
++ 查看hdfs目录文件：hadoop fs -ls 目录名
++ 创建hdfs目录：hadoop fs -mkdir 目录名
++ 上传本地文件：hadoop fs -put 源文件 目的文件
++ 上传本地文件，限定源路径是一个本地文件：hadoop fs -copyFromLocal 源文件 目的路径
++ 下载hdfs文件，限定目标路径是一个本地文件：hadoop fs -copyToLocal 源文件 目的路径
++ 复制文件：hadoop fs -cp 源文件 目的文件
++ 递归删除目录：hadoop fs -rmr 目录名
++ 查看文件：hadoop fs -cat 文件名
++ hdfs中文件的复制：hadoop fs -cp 源文件 目的文件
++ 从hdfs下载文件到本地linux系统：hadoop fs -get [-ignorecrc] [-crc] hdfs的源文件 本地文件
++ 将源文件输出为文本格式，允许的格式为zip和TextRecordInputStream：hadoop fs -text 源文件
+
 
 ## MapReduce
 + 体系结构
@@ -207,8 +225,23 @@
         ({1})：表达式里是一个语句块
         {(1)}：语句块里是一个表达式
         ```
-+ implicit：隐式转换
++ implicit：隐式转换，对函数参数进行类型转换；对函数的调用者的类型进行转换。
+    + 发生类型不匹配的函数调用时，会优先进行函数参数的类型转换，否则对函数的调用者的类型进行转换。
+    + 使用方式 
+        + 将方法或变量标记为implicit
+        + 将方法的参数列表标记为implicit
+        + 将类标记为implicit
 
++ scala和java的集合类型相互转换
+    + 第一种方法，完成双向自动转型：import scala.collection.JavaConversions._
+        + import scala.collection.convert.wrapAll._ //这个和引入collection.JavaConversions._ 没什么分别
+        + import scala.collection.convert.wrapAsJava._  //单纯完成 Scala 到 Java 集合类型的隐式转换
+        + import scala.collection.convert.wrapAsScala._ //只是完成 Java  到 Scala 集合的隐式转换
+    + 第二种方法，引入 scala.collection.JavaConverters._, 显示调用asJava() 或 asScala() 方法完成转型。
+    
+
+
+    
 + map
     + map(_._2)：等价于map(t => t._2)，t是个2项以上的元组，即(1,2,3),(4,5,6),...;
     + map(_._2, _)：**网上说**等价于map(t => t._2, t)，返回元组的第二项及元组，假如元组是(1,2,3),(4,5,6),...，返回：2,(1,2,3)，5,(4,5,6)
@@ -228,7 +261,7 @@
         + **查找属性**
             + 如果对象是集合，后面使用apply，则具有查找功能。
  
-+ zip和zipWithIndex和zipWithUniqueId
++ 拉链操作zip和zipWithIndex和zipWithUniqueId
     + zipWithIndex: 自动加索引，索引从0开始
     ```scala
     val name = Array("zhangsan","lisi","wangwu")
