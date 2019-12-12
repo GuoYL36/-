@@ -143,5 +143,17 @@
     + find /dir0 -ctime +36 -type f | xargs rm -rf
         + xargs命令会分批次的处理结果
 
++ sudo和su
+    + su: 切换了root身份，但shell环境仍然是普通用户的Shell；此时pwd，工作目录还是普通用户的工作目录.
+    + su -：连用户和Shell环境一起切换成root身份，只有切换了Shell环境才不会出现PATH环境变量错误，此时pwd，工作目录变成root的工作目录.
+    
++ 让程序在后台运行和一直运行
+    + 让程序在后台自动运行
+        + 在程序结尾加&：/usr/local/mysql/bin/mysqld_safe --user=mysql & 
+        + 终端关闭，进程结束
 
+    + 退出账户/关闭终端后继续运行相应的进程(守护进程)
+        + nohup /usr/local/mysql/bin/mysqld_safe --user=mysql &
+        + 带&：即使终端关闭或者电脑死机程序依然运行，前提是程序递交到服务器上。
+        + 把标准输出(STDOUT)和标准错误(STDERR)结果输出到nohup.txt文件。
  
