@@ -191,11 +191,14 @@
     + Ambari
     
 ## scala
-
 + 各种符号
     + 参数名:_* ：将该参数当作参数序列处理
-    + _ ：通配符
-        + a._1：表示a中第一个元素
+    + _ 通配符
+        + a._1 表示a中第一个元素
+        + 代表某一类型的默认值
+            + 对于Int，它是0
+            + 对于Double，它是0.0
+            + 对于引用类型，它是null
     
     + 4种操作符：::, +:, :+, :::, ++
         + **::**被称为cons，意为构造，向队列的头部追加数据，创造新的列表。可用于pattern match。
@@ -210,7 +213,12 @@
     + 反斜杠\：scala.xml.Elem中的方法，用来解析XML
         + 提取XML中的子元素：val name: scala.xml.NodeSeq = node \ "name"
         + 提取二级元素：val name: scala.xml.NodeSeq = node \\ "name"
-        
+    + .head和.tail
+        + .head为首个元素
+        + .tail为剩余其它元素的序列
+    + 可变长参数：int*、string*、...
+    
+    
 + 字符串插值：将变量引用直接插入处理过的字面字符中
     + s字符串插值器：在任何字符串前加上s，就可以直接在字符串中使用变量或表达式。
     + f插值器：在任何字符串前加上f，就可以生成简单的格式化串，类型于printf
@@ -244,8 +252,6 @@
     + 第二种方法，引入 scala.collection.JavaConverters._, 显示调用asJava() 或 asScala() 方法完成转型。
     
 
-
-    
 + map
     + map(_._2)：等价于map(t => t._2)，t是个2项以上的元组，即(1,2,3),(4,5,6),...;
     + map(_._2, _)：**网上说**等价于map(t => t._2, t)，返回元组的第二项及元组，假如元组是(1,2,3),(4,5,6),...，返回：2,(1,2,3)，5,(4,5,6)
@@ -293,7 +299,17 @@
     //第一个分区第三个元素C的ID为2+2=4，第二个分区第三个元素F的ID为3+2=5
     ```
 + Any类型转换为其它类型: asInstanceOf[Types]
-    
++ 过程：函数体在花括号中，没有前面的=号，返回类型是Unit。
++ 异常
+    + scala没有“受检"异常(编译期被检查)，即不需要声明函数或方法可能会抛出某种异常；
+    + throw表达式有特殊的类型Nothing
+        + 如果在if/else表达式中有一个分支是Nothing，那么if/else表达式的类型就是另一个分支。
+        ```scala
+        if(x >= 0){
+            sqrt(x)
+        }else throw new IllegalArgumentException("x should not be negative.")
+        ```
+    + 
 
 ## SPARK
 + 分布式：就是一个RDD会被partition到不同node上
