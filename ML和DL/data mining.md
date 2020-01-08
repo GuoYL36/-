@@ -56,7 +56,26 @@
 		+ pearson相关系数：衡量两个数据集是否在一条线上；用来描述两组线性的数据一同变化移动的趋势。
 			+ pearson相关系数等于两个变量的协方差除于两个变量的标准差。
 			+ **连续数据**，**正态分布**，**线性关系**，用pearson相关系数；上述任一条件不满足，就用spearman相关系数，不能用pearson相关系数；两个定序测量数据之间也用spearman相关系数，不能用pearson相关系数。
-	
+            + ```python
+            def pearson(a,b):
+                '''
+                :description：计算皮尔逊系数
+                :param a: list类型
+                :param b: list类型
+                :return: Double
+                '''
+                a_mean = np.mean(a)
+                b_mean = np.mean(b)
+                fenzi = np.sum([(a[i]-a_mean)*(b[i]-b_mean) for i in range(len(a))])
+                fenmu0 = np.sqrt(np.sum([(a[i]-a_mean)*(a[i]-a_mean) for i in range(len(a))]))
+                fenmu1 = np.sqrt(np.sum([(b[i]-b_mean)*(b[i]-b_mean) for i in range(len(b))]))
+                try:
+                    r = fenzi/(fenmu0*fenmu1)
+                except ZeroDivisionError:
+                    print("分母为0")
+                return r
+            ```
+            
 	+ 应用
 		+ 聚类、离群点分析、最近邻分类等
 
