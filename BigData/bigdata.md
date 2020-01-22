@@ -1,4 +1,7 @@
 
+#### 学习的时候按照架构图学更容易明白
+
+
 ## HDFS
 + 块的设计：太小会增加寻址开销，太大会使得资源浪费(使得MapReduce就在一两个任务上运行，不满足并行计算的宗旨)。
 + 名称节点
@@ -28,6 +31,7 @@
 + 将源文件输出为文本格式，允许的格式为zip和TextRecordInputStream：hadoop fs -text 源文件
 
 
+----
 ## MapReduce
 + 体系结构
     + Client(客户端)
@@ -60,6 +64,16 @@
     
     
 ## HBase
++ 单机模式下启动hbase
+    + 启动hbase：./bin/start-hbash.sh
+    + 进入shell命令操作Hbase数据库：./bin/hbase shell
+    + 关闭hbase：./bin/stop-hbase.sh
++ 伪分布模式下启动hbase
+    + 启动hdfs：./sbin/start-dfs.sh
+    + 启动hbase：./bin/stop-hbase.sh
+    + 进入shell命令操作Hbase数据库：./bin/hbase shell
+    + 关闭hbase：./bin/stop-hbase.sh
+    + 关闭hdfs：./sbin/stop-dfs.sh
 + 目的：用来存储非结构化和半结构化的松散数据。通过水平扩展方式(面向列的存储)允许数千台服务器来存储海量数据文件
 + 底层技术
 	+ 文件存储系统：HDFS
@@ -217,6 +231,7 @@
         + .head为首个元素
         + .tail为剩余其它元素的序列
     + 可变长参数：int*、string*、...
+    + 多行字符串—3个双引号""""""：可用于换行，让SQL结构清晰易于阅读
     
     
 + 字符串插值：将变量引用直接插入处理过的字面字符中
@@ -251,7 +266,17 @@
         + import scala.collection.convert.wrapAsScala._ //只是完成 Java  到 Scala 集合的隐式转换
     + 第二种方法，引入 scala.collection.JavaConverters._, 显示调用asJava() 或 asScala() 方法完成转型。
     
-
++ sortBy和sortByKey
+    + sortBy[K](f:(T)=>K, ascending:Boolean={}, numPartitions:Int={})
+        + 返回类型：K
+        + 接收参数类型：T，传入一个参数就可以按这个参数大小进行排序。
+        + 排序方法：true为升序(默认)，false为降序。
+        + 排序后RDD的分区个数：numPartitions，默认与排序前一致。
+        + 原理：先调用keyBy函数生成key->value，然后利用sortBykey函数进行排序。
+    
+    + sortByKey(ascending:Boolean={}, numPartitions:Int={})
+        + 针对于(key,value)的情况
+    
 + map
     + map(_._2)：等价于map(t => t._2)，t是个2项以上的元组，即(1,2,3),(4,5,6),...;
     + map(_._2, _)：**网上说**等价于map(t => t._2, t)，返回元组的第二项及元组，假如元组是(1,2,3),(4,5,6),...，返回：2,(1,2,3)，5,(4,5,6)
@@ -320,9 +345,9 @@
 	+ Stage：每个Job的处理过程要分为几个步骤
 	+ Task：运行的最小单位，每个Job的处理过程分为几次task
 	+ 关系：Job ——> 一个或多个stage ——> 一个或多个task
-		
 
-## RDD：弹性分布式数据集（Resilient distributed datasets）
+
+### RDD：弹性分布式数据集（Resilient distributed datasets）
 > 分布式的Java对象的集合
 + 弹性：RDD进行partition，每个block最大只能存放128M，被分片到node的数据先存放于内存中，如果数据大小大于block大小，则存放于硬盘中，基于内存和硬盘的存取方式就是弹性。
 
@@ -443,10 +468,32 @@
 + org.apache.spark.mllib.evaluation
     + BinaryClassificationMetrics：第一个参数为预测列，第二个参数为实际标签列
 
++ spark sql中agg函数
+    + agg(exprs:column*)：返回DataFrame类型，计算求值；例如：df.agg(max("age"),avg("salary"))
+    + agg(exprs:Map[String,String])：返回dataframe类型，计算求值；例如：df.agg(Map("age"->"max","salary"->"avg"))
+    + agg(aggExpr: (String,String), aggExprs: (String,String)*)：返回dataframe类型，计算求值；例如：df.agg(Map("age"->"max","salary"->"avg"))
+    
++ jdbc连接数据库
+    + 首先在pom.xml中引入mysql-connector-java依赖
+    ```scala
+    import org.apache.spark.{SparkConf,SparkContext}
+    import org.apache.spark.sql.{SQLContext, }
+    
+    val conf = new SparkConf().setMaster("local").setAppName("test")
+    val sc = new SparkContext(conf)
+    val sqlContext = new SQLContext(sc)
+    val jdbcDF = sqlContext.read.format("jdbc")
+            .option("url","jdbc:mysql://localhost:3306/test?serverTimezone=GMT") // 数据库地址和名字、时区
+            .option("driver","com.mysql.cj.jdbc.Driver")
+            .option("dbtable","tb2")  // 数据库表名
+            .option("user","root")  // 数据库用户名
+            .option("password","1234")  // 数据库密码
+            .load()
+    jdbcDF.show()
+    
+    ```
 
-
-
-## DataFrame
+### DataFrame
 > 分布式的Row对象的集合，即：Dataset[Row]，可以自定义case class来获取每一行的信息
 > 一般通过构建dataframe视图，利用spark.sql来对列求取最大值、最小值、平均值等;
 > spark中有单独的column实例，但是一般对列进行运算还是会基于dataframe利用spark.sql来使用
@@ -556,6 +603,27 @@
         case class Person(name:String, age:Int)
         val testDS = testDF.as(Person)
     ```
+### 各种算子
++ 转换操作算子
+    + reduceByKey和groupByKey
+        + reduceByKey
+            + 使用方式
+            ```Scala
+            val a=sc.parallelize(Array("one","two","two")).map(word=>(word,1))      // ("one",1),("two",1),("two",1)
+            val aReduce = a.reduceByKey(_+_)      // ("one",1),("two",2)
+            ```
+        + groupByKey
+            + 使用方式
+            ```Scala
+            val a=sc.parallelize(Array("one","two","two")).map(word=>(word,1))      // ("one",1),("two",1),("two",1)
+            val aReduce=a.groupByKey()      // ("one",[1]),("two",[1,1])
+                        .map(x=>(x._1,x._2.sum)) // ("one",1),("two",2)
+            ```
+    + 区别
+        + reduceByKey()会在shuffle之前对数据进行合并，也就是在map端进行合并操作；而groupByKey()在shuffle之后对数据进行合并，因此增加了IO开销；所以**从效率上，reduceByKey()优于groupByKey()**。
+        
+
+----
 
 ## 图计算
 > 传统的图计算算法存在的典型问题：1、常常表现出比较差的内存访问局部性；2、针对单个顶点的处理工作过少；3、计算过程中伴随着并行度的改变 。
