@@ -105,13 +105,21 @@
 		+ 用char替换当前光标所在位置的单个字符：r  char
 		+ 用text覆盖当前光标所在位置的数据，直到按下ESC键：R  text
 
-+ 可视模式: 按v进入可视模式
++ 可视模式: 按ctrl+v进入可视模式
 	+ 复制
 		+ 移动光标选中需要复制的行，使用y复制选中块到缓冲区
 	+ 剪切
 		+ 移动光标选中需要复制的行，使用d剪切选中块到缓冲区
 	+ 粘贴
 		+ 将光标移动到粘贴的位置，并使用p进行粘贴
+    + 多行注释
+        + 选中需要注释的行
+        + 按大写字母I，然后插入注释符
+        + 按2次ESC键即可全部注释
+    + 取消多行注释
+        + 选中多个注释符
+        + 按d键即可全部取消
+    
 
 + 在vim中查看文件编码：:set fileencoding		
 
@@ -156,4 +164,27 @@
         + nohup /usr/local/mysql/bin/mysqld_safe --user=mysql &
         + 带&：即使终端关闭或者电脑死机程序依然运行，前提是程序递交到服务器上。
         + 把标准输出(STDOUT)和标准错误(STDERR)结果输出到nohup.txt文件。
- 
+
+## 退出xshell后linux程序后台运行
++ nohup python a.py &
++ 创建tmux会话
+
+
+## tmux使用
++ 安装tmux：yum install tmux
++ 进入tmux窗口：tmux
+    + 接入指定会话：tmux attach -t 会话编号/会话名
++ 退出tmux窗口：ctrl+d 或 exit
++ 唤醒快捷键的前缀建：ctrl+b
++ 新建会话：tmux new -s <session-name>
++ 分离会话：ctrl+b+d 或 tmux detach
++ 杀死会话：tmux kill-session -t 会话编号/会话名
++ 切换会话：tmux switch -t 会话编号/会话名
++ 重命名会话： tmux rename-session -t 0 <new-name> 或 Ctrl+b $
++ 列出所有会话：Ctrl+b s
++ 划分窗格：tmux split-window 或 tmux split-window -h
++ 切换窗格
+    + 光标切换到上方窗格：tmux select-pane -U
+    + 光标切换到下方窗格：tmux select-pane -D
+    + 光标切换到左边窗格：tmux select-pane -L
+    + 光标切换到右边窗格：tmux select-pane -R
