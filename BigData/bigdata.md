@@ -631,6 +631,7 @@
 > 通用的图计算软件：1、基于遍历算法的、实时的图数据库(Neo4j、OrientDB等)；2、以图顶点为中心的、基于消息传递批处理的并行引擎(Giraph、Pregel等；3、这些都是基于**BSP模型**实现的，BSP(Bulk Synchronous Parallel Computing Model，整体同步并行计算模型，简称大同步模型)。4、BSP模型包含：通过网络连接起来的处理器；一系列的全局超步。
 > 一个超步的结构(针对处理器)：1、局部计算组件；2、通讯组件；3、栅栏同步组件。
 
+### 概念
 + Pregel
     + Pregel计算模型以**有向图**作为输入
     + 有向图的每个顶点都有一个String类型的顶点ID
@@ -706,7 +707,130 @@
         + 在超步S中，每个worker会利用aggregator对本地分区中包含的所有顶点的值进行归约，得到一个本地的局部归约值；
         + 超步S结束时，所有worker会将局部归约值进行汇总得到全局值，提交给Master；
         + 下一超步S+1开始时，master会将Aggregator的全局值发送给每个worker;
-        
+### 算子        
++ reverse算子
+    + 作用：把edge的方向反过来；
+    ```scala
+    val users: RDD[(VertexId, (String, String))] =
+  sc.parallelize(Array((1L, ("a", "student")), (2L, ("b", "salesman")),
+    (3L, ("c", "programmer")), (4L, ("d", "doctor")),
+    (5L, ("e", "postman"))))
+
+    val relationships: RDD[Edge[String]] =
+      sc.parallelize(Array(Edge(1L, 2L, "customer"),Edge(3L, 2L, "customer"),
+        Edge(3L, 4L, "patient"), Edge(5L, 4L, "patient"),
+        Edge(3L, 4L, "friend"),   Edge(5L, 99L, "father")))
+
+    val defaultUser = ("f", "none")
+
+    val graph = Graph(users, relationships, defaultUser)
+    
+    graph.triplets.map(
+          triplet => triplet.srcAttr._1 + " ——(" + triplet.attr + ")——> " + triplet.dstAttr._1
+        ).collect.foreach(println(_))
+    // 输出
+    // a ——(customer)——> b
+    // c ——(customer)——> b
+    // c ——(patient)——> d
+    // e ——(patient)——> d
+    // c ——(friend)——> d
+    // e ——(father)——> f
+    
+    // reverse算子
+    val reverseGraph = graph.reverse
+    reverseGraph.triplets.map(
+      triplet => triplet.srcAttr._1 + " ——(" + triplet.attr + ")——> " + triplet.dstAttr._1
+    ).collect.foreach(println(_))
+
+    // 输出
+    // b ——(customer)——> a
+    // b ——(customer)——> c
+    // d ——(patient)——> c
+    // d ——(patient)——> e
+    // d ——(friend)——> c
+    // f ——(father)——> e
+   
+    ```
++ subgraph
+    + 作用：取原来graph的子graph，获取子graph必须有条件过滤掉一部分数据；
+    ```scala
+    val subGraph = graph.subgraph(vpred = (id, attr) => attr._1 > "b")
+    subGraph.triplets.map(
+      triplet => triplet.srcAttr._1 + " ——(" + triplet.attr + ")——> " + triplet.dstAttr._1
+    ).collect.foreach(println(_))
+
+    // 输出
+    // c ——(patient)——> d
+    // e ——(patient)——> d
+    // c ——(friend)——> d
+    // e ——(father)——> f
+   
+    ```
++ mask算子
+    + 作用：求当前graph和另外一个graph的交集
+    ```scala
+    val maskGraph = graph.mask(subGraph)
+    maskGraph.triplets.map(
+      triplet => triplet.srcAttr._1 + " ——(" + triplet.attr + ")——> " + triplet.dstAttr._1
+    ).collect.foreach(println(_))
+
+    // 输出：subGraph与graph的交集肯定是subGraph，因为subGraph是graph的子图。
+    // c ——(patient)——> d
+    // e ——(patient)——> d
+    // c ——(friend)——> d
+    // e ——(father)——> f
+    
+    ```
++ groupEdges
+    + 原因：graphx处理的是多重图，即2个顶点之间可能有多条平行边；
+    + 作用：将2个vertex之间所有edge进行合并；
+    ```scala
+    // 例子1：
+    val combineGraph = graph
+  .partitionBy(PartitionStrategy.EdgePartition1D)
+  .groupEdges(merge = (e1, e2) => e1 + " and " + e2)
+
+    combineGraph.triplets.map(
+          triplet => triplet.srcAttr._1 + " ——(" + triplet.attr + ")——> " + triplet.dstAttr._1
+        ).collect.foreach(println(_))
+    
+    // 输出：这里将平行边的元素用and连接起来了，这里要注意的是，使用groupEdges算子之前，必须先用一下partitionBy，因为它假设同一条边位于同一分区，不然不起作用的。
+    // a ——(customer)——> b
+    // c ——(customer)——> b
+    // c ——(patient and friend)——> d
+    // e ——(patient)——> d
+    // e ——(father)——> f
+
+    // 例子2
+    // groupEdge ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+		// day09-02-edges.csv
+		// 1,2,100,2014/12/1
+		// 1,2,110,2014/12/11
+		// 2,3,200,2014/12/21
+		// 2,3,210,2014/12/2
+		// 3,1,300,2014/12/3
+		// 3,1,310,2014/12/31
+		val edgeLines2: RDD[String] = sc.textFile("graphdata/day09-02-edges.csv")
+		val e2:RDD[Edge[((Long, java.util.Date))]] = edgeLines2.map(line => {
+				val cols = line.split(",")
+				Edge(cols(0).toLong, cols(1).toLong, (cols(2).toLong, format.parse(cols(3))))
+			})
+ 
+		val graph2:Graph[(String, Long), (Long, java.util.Date)] = Graph(v, e2)
+ 
+		// 使用groupEdges语句将edge中相同Id的数据进行合并
+		val edgeGroupedGraph:Graph[(String, Long), (Long, java.util.Date)] = graph2.groupEdges(merge = (e1, e2) => (e1._1 + e2._1, if(e1._2.getTime < e2._2.getTime) e1._2 else e2._2))
+ 
+		println("\n\n~~~~~~~~~ Confirm merged edges graph ")
+		edgeGroupedGraph.edges.collect.foreach(println(_))
+		// Edge(1,2,(210,Mon Dec 01 00:00:00 EST 2014))
+		// Edge(2,3,(200,Sun Dec 21 00:00:00 EST 2014))
+		// Edge(2,3,(210,Tue Dec 02 00:00:00 EST 2014))
+		// Edge(3,1,(610,Wed Dec 03 00:00:00 EST 2014))
+
+    
+    ```
 
  
 ## Docker
