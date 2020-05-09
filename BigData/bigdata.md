@@ -29,7 +29,7 @@
 + hdfs中文件的复制：hadoop fs -cp 源文件 目的文件
 + 从hdfs下载文件到本地linux系统：hadoop fs -get [-ignorecrc] [-crc] hdfs的源文件 本地文件
 + 将源文件输出为文本格式，允许的格式为zip和TextRecordInputStream：hadoop fs -text 源文件
-
++ 从hdfs上复制文件到另一个hdfs上：hadoop distcp hdfs://hdfsClusterForML:9000/usr/spark/zhongyuan hdfs://192.168.1.178:9000/usr/spark
 
 ----
 ## MapReduce
@@ -335,6 +335,13 @@
         }else throw new IllegalArgumentException("x should not be negative.")
         ```
     + 
++ split特殊符号
+    + 关于点的问题是用string.split("[.]") 解决。
+    + 关于竖线的问题用 string.split("\\|")解决。
+    + 关于星号的问题用 string.split("\\*")解决。
+    + 关于斜线的问题用 sring.split("\\\\")解决。
+    + 关于中括号的问题用 sring.split("\\[\\]")解决。
+
 
 ## SPARK
 + 分布式：就是一个RDD会被partition到不同node上
