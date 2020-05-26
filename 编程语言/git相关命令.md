@@ -94,6 +94,7 @@ $ git commit--amend -m [message]
 # 重做上一次commit，并包括指定文件的新变化
 $ git commit--amend [file1] [file2] ...
 
+
 ```
 ### 分支
 ```shell
@@ -240,6 +241,38 @@ $ git reflog
 
 ### 远程同步
 ```shell
+# 描述
+$ git push origin 本地分支:远程分支  // 把origin仓库的本地分支代码提交到远程分支
+$ git push origin 本地分支  // 把origin仓库的本地分支代码提交到与本地分支同名的远程分支
+$ git push   // 将本地当前分支推送到与本地当前分支同名的远程分支上
+$ git pull origin 远程分支:本地分支  // 把origin仓库的远程分支代码拉取到本地分支
+$ git pull origin 远程分支  // 把origin仓库的远程分支拉取到本地当前分支 
+$ git pull   // 将与本地当前分支同名的远程分支 拉取到 本地当前分支上
+
+
+# 新建分支(https://www.cnblogs.com/lihuibin/p/10353942.html)
+$ git clone  // 克隆代码 
+$ git branch --all  // 查看所有分支
+$ git branch guoyilin  // 创建本地分支
+$ git branch  // 查看分支
+$ git push origin guoyilin:guoyilin  // 发布分支
+
+
+    
+# 远程仓库代码有更改，拉取下来与本地进行合并
+$ git remote -v  // 查看当前远程的版本
+// 两种方式拉取
+// git pull
+$ git pull origin master // 从远程拉取最新版本到本地自动合并（不推荐这种方式，因为是直接合并，无法提前处理冲突。）
+// git fetch
+$ git fetch origin master:temp  // 本地创建临时分支temp，从远程origin仓库的master分支获取最新版本到temp分支
+$ git diff master  // 查看当前分支(假设为temp分支)与本地master分支的区别
+$ git merge temp  // 合并临时分支temp到本地分支master(假设当前分支为master) 
+$ git branch -d temp  // 删除临时分支temp
+
+// git拉取指定远程分支代码
+$ git clone -b 指定远程分支名称 代码仓库地址
+
 # 下载远程仓库的所有变动
 $ git fetch[remote]
 
