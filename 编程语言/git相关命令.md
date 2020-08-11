@@ -250,12 +250,13 @@ $ git pull origin 远程分支  // 把origin仓库的远程分支拉取到本地
 $ git pull   // 将与本地当前分支同名的远程分支 拉取到 本地当前分支上
 
 
-# 新建分支(https://www.cnblogs.com/lihuibin/p/10353942.html)
-$ git clone  // 克隆代码 
+# 新建远程分支(https://www.cnblogs.com/lihuibin/p/10353942.html)
+$ git clone 仓库地址 // 克隆代码 
 $ git branch --all  // 查看所有分支
 $ git branch guoyilin  // 创建本地分支
-$ git branch  // 查看分支
-$ git push origin guoyilin:guoyilin  // 发布分支
+$ git branch  // 查看分支是否创建成功
+$ git checkout guoyilin // 切换到guoyilin分支
+$ git push origin guoyilin:guoyilin  // 发布本地分支guoyilin到远程分支上
 
 
     

@@ -352,6 +352,51 @@
 	+ Stage：每个Job的处理过程要分为几个步骤
 	+ Task：运行的最小单位，每个Job的处理过程分为几次task
 	+ 关系：Job ——> 一个或多个stage ——> 一个或多个task
+### SPARK应用程序
+1、理解spark程序运行的工作原理、调度方式；
+2、理解spark中driver、executor、job、task、partition、stage的概念
+3、理解spark中client模式运行、cluster模式运行的区别
++ spark应用程序(application)由一个driver**进程**和一组executor**进程**组成
+    + driver进程运行main()函数，位于集群中一个节点上，负责3件事：
+        + 应用程序的核心，在application执行的生命周期维护spark应用程序的相关信息；
+        + 回应用户的程序或输入；
+        + 分析任务，分发任务给executor
+        + **两种模式：client、cluster**
+            + client模式将提交任务的机器当作driver；
+            + cluster模式则是从集群中随机选择一台机器作为driver;
+    + executor，可以理解为，执行实际计算，负责2件事：
+        + 执行driver分发的代码；
+        + 将计算状态报告给driver；
+    + **集群模式下**，由于driver和executor都只是进程，所以一台机器可以有多个这样的进程；**本地模式下**，driver和executor都只是以线程运行；
+    + 每一个application需要一个sparkSession与之对应；
+
++ job：一个action操作就是一个job，一个job有多个stage
++ stage: 一个transform操作就是一个stage；
+    + stage切分点：根据**窄依赖**和**宽依赖**，宽依赖和窄依赖的边界就是stage切分点
+        + 窄依赖：父RDD数据只进入到一个子RDD；
+        + 宽依赖：父RDD数据进入到不同的子RDD；
++ task：一个partition就是一个task;
++ 计算资源**空转**情况：RDD有18个分区(task)，分配10个executor，每个executor有2-core，则同一时刻只有18个cores在处理task，其余2个空转；
++ 计算资源不足情况：RDD有20个分区（task），分配9个executor，每个executor有2-core，则计算这个RDD需要2轮；
+
+# 完整数据：多个file存储在hdfs上，每个file包含多个块block；
++ spark读取：当spark读取这些file作为输入时，会根据具体数据格式对应的InputFormat进行解析，
+一般是将同一个file的若干个block合并为一个或多个输入分片InputSplit，每个InputSplit对应生成一个task，
+每个task对应一个partition，多个partition组成一个RDD。
+    + block：hdfs上的概念
+    + partition：spark中RDD数据的概念
+
++ 每个节点可以起一个或多个executor，每个executor由若干core组成，一个core对应1个task；
++ 并行数相当于executor-cores * executor-num；
+
+
+    
+### 数据分区
++ 分区：一个数据块叫作一个分区；
+    + 如果只有一个分区，有多个executor，那只有一个executor在处理数据；
+    + 如果有多个分区，只有一个executor，那只有一个executor在处理数据；
+
+
 
 
 ### RDD：弹性分布式数据集（Resilient distributed datasets）
