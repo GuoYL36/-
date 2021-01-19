@@ -8,13 +8,32 @@
 	- [为什么有了word2vec，还要Glove、ELMO等？](#为什么有了word2vec，还要Glove、ELMO等？)
 	- [BPE](#BPE)
 	- [SentencePiece](#SentencePiece)
-	- [Attention的实现](#Attention的实现)
+	- [Attention](#Attention)
 	- [Beam Search](#BeamSearch)
+    - [transformer](#transformer)
+    - [bert](#bert)
+    - [XLNet](#XLNet)
+    - [Albert——降低参数量、减少内存、提升模型效果](#Albert——降低参数量、减少内存、提升模型效果)
+    - [RoBERTa](#RoBERTa)
+    - [WordPiece](#WordPiece)
+    - [BatchNorm和LayerNorm](#BatchNorm和LayerNorm)
+    - [NER](#NER)
 	
 	
 ### TF-IDF
-+ **IDF为什么用对数？**
-	+ 涉及到信息论的知识，指IDF相当于一个权重，当该词越容易分辨，则相应权重也会特别大。
++ TF：term frequency，词频，表示词在文本中出现的频率；
++ IDF：Inverse Document Frequency，逆向文件频率，为总文件数目除以包含该词的文件数量；
+    + 公式：log(语料库中文档总数/(包含该词的文件数量+1))
+    + **IDF为什么用对数？**
+        + 涉及到信息论的知识，指IDF相当于一个权重，当该词越容易分辨，则相应权重也会特别大。
++ TF-IDF
+    + 公式：TF*IDF
++ 应用
+    + 搜索引擎
+    + 关键词提取
+    + 文本相似性
+    + 文本摘要
+    
 ----
 
 ### word2vec
@@ -103,199 +122,216 @@
 
 ----
 
-### Attention的实现
-> 苏剑林. (2018, Jan 06). 《《Attention is All You Need》浅读（简介+代码） 》[Blog post]. Retrieved from https://kexue.fm/archives/4765
+### Attention
++ self-attention
+    + 
++ hard-attention
+    + 直接定位到某个key并将其概率设为1，其它key的概率为0——每个时刻模型的序列只有一个取值为1，其余为0
+    + 优点
+        + 计算量小
+    + 缺点
+        + 对对齐方式要求很高
+        + 不可导，只能通过强化学习训练
++ soft-attention (global-attention)
+    + 利用所有key并计算概率权重，最后加权求和
+    + 优点
+        + 考虑了所有信息，计算量大;
+    + 缺点
+        + 计算量大
++ local-attention
+    + 对一个窗口区域进行计算，综合soft-attention和hard-attention实现，先用hard-attention定位到某个点，以这个点为中心区域得到一个区域，并在这个区域进行soft-attention。
 
-+ keras实现
-	```python
-	from keras import backend as K
-	from keras.engine.topology import Layer
++ attention实现
+    + 苏剑林. (2018, Jan 06). 《《Attention is All You Need》浅读（简介+代码） 》[Blog post]. Retrieved from https://kexue.fm/archives/4765
+    + keras实现
+        ```python
+        from keras import backend as K
+        from keras.engine.topology import Layer
 
-	class Position_Embedding(Layer):
-		def __init__(self, size=None, mode='sum', **kwargs):
-			self.size = size #必须为偶数
-			self.mode = mode
-			super(Position_Embedding, self).__init__(**kwargs)
-        
-		def call(self, x):
-			if (self.size == None) or (self.mode == 'sum'):
-				self.size = int(x.shape[-1])
+        class Position_Embedding(Layer):
+            def __init__(self, size=None, mode='sum', **kwargs):
+                self.size = size #必须为偶数
+                self.mode = mode
+                super(Position_Embedding, self).__init__(**kwargs)
             
-			batch_size, seq_len = K.shape(x)[0], K.shape(x)[1]
-			position_j = 1. / K.pow(10000., 2*K.arange(self.size/2, dtype='float32')/self.size) # shape: (self.size/2,)
-			position_j = K.expand_dims(position_j, 0)  # shape: (1, self.size/2)
-			position_i = K.cumsum(K.ones_like(x[:,:,0]), 1)-1  # K.arange不支持变长，只好用这种方法生成，shape: (batch_size, seq_len)
-			position_i = K.expand_dims(position_i, 2)  # shape: (batch_size, seq_len, 1)
-			position_ij = K.dot(position_i, position_j)  # shape: (batch_size, seq_len, 1) x (1, self.size/2)  —> (batch_size, seq_len, self.size/2)
-			position_ij = K.concatenate([K.cos(position_ij), K.sin(position_ij)], 2)
-			if self.mode == 'sum':
-				return position_ij + x
-			elif self.mode ==  'concat':
-				return K.concatenate([position_ij, x], 2)
-    
-		def compute_output_shape(self, input_shape):
-			if self.mode == 'sum':
-				return input_shape
-			elif self.mode == 'concate':
-				return (input_shape[0], input_shape[1], input_shape[2]+self.size)
+            def call(self, x):
+                if (self.size == None) or (self.mode == 'sum'):
+                    self.size = int(x.shape[-1])
+                
+                batch_size, seq_len = K.shape(x)[0], K.shape(x)[1]
+                position_j = 1. / K.pow(10000., 2*K.arange(self.size/2, dtype='float32')/self.size) # shape: (self.size/2,)
+                position_j = K.expand_dims(position_j, 0)  # shape: (1, self.size/2)
+                position_i = K.cumsum(K.ones_like(x[:,:,0]), 1)-1  # K.arange不支持变长，只好用这种方法生成，shape: (batch_size, seq_len)
+                position_i = K.expand_dims(position_i, 2)  # shape: (batch_size, seq_len, 1)
+                position_ij = K.dot(position_i, position_j)  # shape: (batch_size, seq_len, 1) x (1, self.size/2)  —> (batch_size, seq_len, self.size/2)
+                position_ij = K.concatenate([K.cos(position_ij), K.sin(position_ij)], 2)
+                if self.mode == 'sum':
+                    return position_ij + x
+                elif self.mode ==  'concat':
+                    return K.concatenate([position_ij, x], 2)
         
-	class Attention(Layer):
-		def __init__(self, nb_head, size_per_head, mask_right=False, **kwargs):
-			self.nb_head = nb_head
-			self.size_per_head = size_per_head
-			self.output_dim = nb_head*size_per_head
-			self.mask_right = mask_right
-			super(Attention, self).__init__(**kwargs)
-			
-		def build(self, input_shape):
-			self.WQ = self.add_weight(name='WQ',shape=(input_shape[0][-1], self.output_dim), initializer='glorot_uniform', trainable=True)
-			self.WK = self.add_weight(name='WK', shape=(input_shape[1][-1], self.output_dim), initializer='glorot_uniform', trainable=True)
-			self.WV = self.add_weight(name='WV', shape=(input_shape[2][-1], self.output_dim), initializer='glorot_uniform', trainable = True)
-			super(Attention, self).build(input_shape)
-			
-		def Mask(self, inputs, seq_len, mode='mul'):
-			if seq_len == None:
-				return inputs
-			else:
-				mask = K.one_hot(seq_len[:,0], K.shape(inputs)[1])
-				mask = 1 - K.cumsum(mask, 1)
-				for _ in range(len(inputs.shape)-2):
-					mask = K.expand_dims(mask, 2)
-				if mode == 'mul':
-					return inputs * mask
-				if mode == 'add':
-					return inputs - (1-mask)*1e12
-				
-		def call(self, x):
-			# 如果只传入Q_seq, K_seq, V_seq，那么就不做Mask
-			# 如果只传入Q_seq, K_seq, V_seq, Q_len, V_len，那么对多余部分做Mask
-			if len(x) == 3:
-				Q_seq, K_seq, V_seq = x
-				Q_len, V_len = None, None
-			elif len(x) == 5:
-				Q_seq, K_seq, V_seq, Q_len, V_len = x
-			
-			# 对Q、K、V做线性变换
-			Q_seq = K.dot(Q_seq, self.WQ)
-			Q_seq = K.reshape(Q_seq, (-1, K.shape(Q_seq)[1], self.nb_head, self.size_per_head))
-			Q_seq = K.permute_dimensions(Q_seq, (0,2,1,3))
-			K_seq = K.dot(K_seq, self.WK)
-			K_seq = K.reshape(K_seq, (-1,K.shape(K_seq)[1], self.nb_head, self.size_per_head))
-			K_seq = K.permute_dimensions(K_seq, (0,2,1,3))
-			V_seq = K.dot(V_seq, self.WV)
-			V_seq = K.reshape(V_seq, (-1, K.shape(V_seq)[1], self.nb_head, self.size_per_head))
-			V_seq = K.permute_dimensions(V_seq, (0,2,1,3))
-			#计算内积，然后mask，然后softmax
-			A = K.batch_dot(Q_seq, K_seq, axes=[3,3])/self.size_per_head**0.5
-			A = K.permute_dimensions(A, (0,3,2,1))
-			A = self.Mask(A, V_len, 'add')
-			A = K.permute_dimensions(A, (0,3,2,1))
-			if self.mask_right:
-				ones = K.ones_like(A[:1, :1])
-				mask = (ones - K.tf.matrix_band_part(ones, -1, 0))*1e12
-				A = A - mask
-			A = K.softmax(A)
-			# 输出并mask
-			O_seq = K.batch_dot(A, V_seq, axes=[3,2])
-			O_seq = K.permute_dimensions(O_seq, (0,2,1,3))
-			O_seq = K.reshape(O_seq, (-1, K.shape(O_seq)[1], self.output_dim))
-			O_seq = self.Mask(O_seq, Q_len, 'mul')
-			return O_seq
-		
-		def compute_output_shape(self, input_shape):
-			return (input_shape[0][0], input_shape[0][1], self.output_dim)
-	
-	```
-+ tensorflow实现
-	```python
-	import tensorflow as tf
+            def compute_output_shape(self, input_shape):
+                if self.mode == 'sum':
+                    return input_shape
+                elif self.mode == 'concate':
+                    return (input_shape[0], input_shape[1], input_shape[2]+self.size)
+            
+        class Attention(Layer):
+            def __init__(self, nb_head, size_per_head, mask_right=False, **kwargs):
+                self.nb_head = nb_head
+                self.size_per_head = size_per_head
+                self.output_dim = nb_head*size_per_head
+                self.mask_right = mask_right
+                super(Attention, self).__init__(**kwargs)
+                
+            def build(self, input_shape):
+                self.WQ = self.add_weight(name='WQ',shape=(input_shape[0][-1], self.output_dim), initializer='glorot_uniform', trainable=True)
+                self.WK = self.add_weight(name='WK', shape=(input_shape[1][-1], self.output_dim), initializer='glorot_uniform', trainable=True)
+                self.WV = self.add_weight(name='WV', shape=(input_shape[2][-1], self.output_dim), initializer='glorot_uniform', trainable = True)
+                super(Attention, self).build(input_shape)
+                
+            def Mask(self, inputs, seq_len, mode='mul'):
+                if seq_len == None:
+                    return inputs
+                else:
+                    mask = K.one_hot(seq_len[:,0], K.shape(inputs)[1])
+                    mask = 1 - K.cumsum(mask, 1)
+                    for _ in range(len(inputs.shape)-2):
+                        mask = K.expand_dims(mask, 2)
+                    if mode == 'mul':
+                        return inputs * mask
+                    if mode == 'add':
+                        return inputs - (1-mask)*1e12
+                    
+            def call(self, x):
+                # 如果只传入Q_seq, K_seq, V_seq，那么就不做Mask
+                # 如果只传入Q_seq, K_seq, V_seq, Q_len, V_len，那么对多余部分做Mask
+                if len(x) == 3:
+                    Q_seq, K_seq, V_seq = x
+                    Q_len, V_len = None, None
+                elif len(x) == 5:
+                    Q_seq, K_seq, V_seq, Q_len, V_len = x
+                
+                # 对Q、K、V做线性变换
+                Q_seq = K.dot(Q_seq, self.WQ)
+                Q_seq = K.reshape(Q_seq, (-1, K.shape(Q_seq)[1], self.nb_head, self.size_per_head))
+                Q_seq = K.permute_dimensions(Q_seq, (0,2,1,3))
+                K_seq = K.dot(K_seq, self.WK)
+                K_seq = K.reshape(K_seq, (-1,K.shape(K_seq)[1], self.nb_head, self.size_per_head))
+                K_seq = K.permute_dimensions(K_seq, (0,2,1,3))
+                V_seq = K.dot(V_seq, self.WV)
+                V_seq = K.reshape(V_seq, (-1, K.shape(V_seq)[1], self.nb_head, self.size_per_head))
+                V_seq = K.permute_dimensions(V_seq, (0,2,1,3))
+                #计算内积，然后mask，然后softmax
+                A = K.batch_dot(Q_seq, K_seq, axes=[3,3])/self.size_per_head**0.5
+                A = K.permute_dimensions(A, (0,3,2,1))
+                A = self.Mask(A, V_len, 'add')
+                A = K.permute_dimensions(A, (0,3,2,1))
+                if self.mask_right:
+                    ones = K.ones_like(A[:1, :1])
+                    mask = (ones - K.tf.matrix_band_part(ones, -1, 0))*1e12
+                    A = A - mask
+                A = K.softmax(A)
+                # 输出并mask
+                O_seq = K.batch_dot(A, V_seq, axes=[3,2])
+                O_seq = K.permute_dimensions(O_seq, (0,2,1,3))
+                O_seq = K.reshape(O_seq, (-1, K.shape(O_seq)[1], self.output_dim))
+                O_seq = self.Mask(O_seq, Q_len, 'mul')
+                return O_seq
+            
+            def compute_output_shape(self, input_shape):
+                return (input_shape[0][0], input_shape[0][1], self.output_dim)
+        
+        ```
+    + tensorflow实现
+        ```python
+        import tensorflow as tf
 
-	'''
-	inputs是一个形如(batch_size, seq_len, word_size)的张量；
-	函数返回一个形如(batch_size, seq_len, position_size)的位置张量。
-	'''
-	def Position_Embedding(inputs, position_size):
-		batch_size,seq_len = tf.shape(inputs)[0],tf.shape(inputs)[1]
-		position_j = 1. / tf.pow(10000., \
-								 2 * tf.range(position_size / 2, dtype=tf.float32 \
-								) / position_size)
-		position_j = tf.expand_dims(position_j, 0)
-		position_i = tf.range(tf.cast(seq_len, tf.float32), dtype=tf.float32)
-		position_i = tf.expand_dims(position_i, 1)
-		position_ij = tf.matmul(position_i, position_j)
-		position_ij = tf.concat([tf.cos(position_ij), tf.sin(position_ij)], 1)
-		position_embedding = tf.expand_dims(position_ij, 0) \
-							 + tf.zeros((batch_size, seq_len, position_size))
-		return position_embedding
+        '''
+        inputs是一个形如(batch_size, seq_len, word_size)的张量；
+        函数返回一个形如(batch_size, seq_len, position_size)的位置张量。
+        '''
+        def Position_Embedding(inputs, position_size):
+            batch_size,seq_len = tf.shape(inputs)[0],tf.shape(inputs)[1]
+            position_j = 1. / tf.pow(10000., \
+                                     2 * tf.range(position_size / 2, dtype=tf.float32 \
+                                    ) / position_size)
+            position_j = tf.expand_dims(position_j, 0)
+            position_i = tf.range(tf.cast(seq_len, tf.float32), dtype=tf.float32)
+            position_i = tf.expand_dims(position_i, 1)
+            position_ij = tf.matmul(position_i, position_j)
+            position_ij = tf.concat([tf.cos(position_ij), tf.sin(position_ij)], 1)
+            position_embedding = tf.expand_dims(position_ij, 0) \
+                                 + tf.zeros((batch_size, seq_len, position_size))
+            return position_embedding
 
 
-	'''
-	inputs是一个二阶以上的张量，代表输入序列，比如形如(batch_size, seq_len, input_size)的张量；
-	seq_len是一个形如(batch_size,)的张量，代表每个序列的实际长度，多出部分都被忽略；
-	mode分为mul和add，mul是指把多出部分全部置零，一般用于全连接层之前；
-	add是指把多出部分全部减去一个大的常数，一般用于softmax之前。
-	'''
-	def Mask(inputs, seq_len, mode='mul'):
-		if seq_len == None:
-			return inputs
-		else:
-			mask = tf.cast(tf.sequence_mask(seq_len), tf.float32)
-			for _ in range(len(inputs.shape)-2):
-				mask = tf.expand_dims(mask, 2)
-			if mode == 'mul':
-				return inputs * mask
-			if mode == 'add':
-				return inputs - (1 - mask) * 1e12
+        '''
+        inputs是一个二阶以上的张量，代表输入序列，比如形如(batch_size, seq_len, input_size)的张量；
+        seq_len是一个形如(batch_size,)的张量，代表每个序列的实际长度，多出部分都被忽略；
+        mode分为mul和add，mul是指把多出部分全部置零，一般用于全连接层之前；
+        add是指把多出部分全部减去一个大的常数，一般用于softmax之前。
+        '''
+        def Mask(inputs, seq_len, mode='mul'):
+            if seq_len == None:
+                return inputs
+            else:
+                mask = tf.cast(tf.sequence_mask(seq_len), tf.float32)
+                for _ in range(len(inputs.shape)-2):
+                    mask = tf.expand_dims(mask, 2)
+                if mode == 'mul':
+                    return inputs * mask
+                if mode == 'add':
+                    return inputs - (1 - mask) * 1e12
 
-	'''
-	普通的全连接
-	inputs是一个二阶或二阶以上的张量，即形如(batch_size,...,input_size)。
-	只对最后一个维度做矩阵乘法，即输出一个形如(batch_size,...,ouput_size)的张量。
-	'''
-	def Dense(inputs, ouput_size, bias=True, seq_len=None):
-		input_size = int(inputs.shape[-1])
-		W = tf.Variable(tf.random_uniform([input_size, ouput_size], -0.05, 0.05))
-		if bias:
-			b = tf.Variable(tf.random_uniform([ouput_size], -0.05, 0.05))
-		else:
-			b = 0
-		outputs = tf.matmul(tf.reshape(inputs, (-1, input_size)), W) + b
-		outputs = tf.reshape(outputs, \
-							 tf.concat([tf.shape(inputs)[:-1], [ouput_size]], 0)
-							)
-		if seq_len != None:
-			outputs = Mask(outputs, seq_len, 'mul')
-		return outputs
+        '''
+        普通的全连接
+        inputs是一个二阶或二阶以上的张量，即形如(batch_size,...,input_size)。
+        只对最后一个维度做矩阵乘法，即输出一个形如(batch_size,...,ouput_size)的张量。
+        '''
+        def Dense(inputs, ouput_size, bias=True, seq_len=None):
+            input_size = int(inputs.shape[-1])
+            W = tf.Variable(tf.random_uniform([input_size, ouput_size], -0.05, 0.05))
+            if bias:
+                b = tf.Variable(tf.random_uniform([ouput_size], -0.05, 0.05))
+            else:
+                b = 0
+            outputs = tf.matmul(tf.reshape(inputs, (-1, input_size)), W) + b
+            outputs = tf.reshape(outputs, \
+                                 tf.concat([tf.shape(inputs)[:-1], [ouput_size]], 0)
+                                )
+            if seq_len != None:
+                outputs = Mask(outputs, seq_len, 'mul')
+            return outputs
 
-	'''
-	Multi-Head Attention的实现
-	'''
-	def Attention(Q, K, V, nb_head, size_per_head, Q_len=None, V_len=None):
-		#对Q、K、V分别作线性映射
-		Q = Dense(Q, nb_head * size_per_head, False)
-		Q = tf.reshape(Q, (-1, tf.shape(Q)[1], nb_head, size_per_head))
-		Q = tf.transpose(Q, [0, 2, 1, 3])
-		K = Dense(K, nb_head * size_per_head, False)
-		K = tf.reshape(K, (-1, tf.shape(K)[1], nb_head, size_per_head))
-		K = tf.transpose(K, [0, 2, 1, 3])
-		V = Dense(V, nb_head * size_per_head, False)
-		V = tf.reshape(V, (-1, tf.shape(V)[1], nb_head, size_per_head))
-		V = tf.transpose(V, [0, 2, 1, 3])
-		#计算内积，然后mask，然后softmax
-		A = tf.matmul(Q, K, transpose_b=True) / tf.sqrt(float(size_per_head))
-		A = tf.transpose(A, [0, 3, 2, 1])
-		A = Mask(A, V_len, mode='add')
-		A = tf.transpose(A, [0, 3, 2, 1])
-		A = tf.nn.softmax(A)
-		#输出并mask
-		O = tf.matmul(A, V)
-		O = tf.transpose(O, [0, 2, 1, 3])
-		O = tf.reshape(O, (-1, tf.shape(O)[1], nb_head * size_per_head))
-		O = Mask(O, Q_len, 'mul')
-		return O
-	
-	
-	```
+        '''
+        Multi-Head Attention的实现
+        '''
+        def Attention(Q, K, V, nb_head, size_per_head, Q_len=None, V_len=None):
+            #对Q、K、V分别作线性映射
+            Q = Dense(Q, nb_head * size_per_head, False)
+            Q = tf.reshape(Q, (-1, tf.shape(Q)[1], nb_head, size_per_head))
+            Q = tf.transpose(Q, [0, 2, 1, 3])
+            K = Dense(K, nb_head * size_per_head, False)
+            K = tf.reshape(K, (-1, tf.shape(K)[1], nb_head, size_per_head))
+            K = tf.transpose(K, [0, 2, 1, 3])
+            V = Dense(V, nb_head * size_per_head, False)
+            V = tf.reshape(V, (-1, tf.shape(V)[1], nb_head, size_per_head))
+            V = tf.transpose(V, [0, 2, 1, 3])
+            #计算内积，然后mask，然后softmax
+            A = tf.matmul(Q, K, transpose_b=True) / tf.sqrt(float(size_per_head))
+            A = tf.transpose(A, [0, 3, 2, 1])
+            A = Mask(A, V_len, mode='add')
+            A = tf.transpose(A, [0, 3, 2, 1])
+            A = tf.nn.softmax(A)
+            #输出并mask
+            O = tf.matmul(A, V)
+            O = tf.transpose(O, [0, 2, 1, 3])
+            O = tf.reshape(O, (-1, tf.shape(O)[1], nb_head * size_per_head))
+            O = Mask(O, Q_len, 'mul')
+            return O
+        
+        ```
 ----
 
 ### BeamSearch
@@ -308,3 +344,143 @@
 + 思想：在每次计算前，只保留当前最优的top k个候选结果。比如：当k=3时，第一步选择使得概率最大的前3个值，然后分别递归计算下一时刻的每个值的概率，然后各取前3个值，这样的话就是9种组合了，然后计算每一种组合的总概率，选择最大的前3个，依次递归直至出现<end>为止。**k=1时为贪心搜索**
 
 ----
+
+### transformer
++ attention中scaled的作用
+    + 当Q和K维度很大时，点积结果会很大，不经过scaled处理，使得softmax会将元素最大的位置非常接近1(类似one-hot)，导致反向传播求导时梯度为0(梯度消失)。
+
+### bert
++ 只用了transformer-encoder结构：Multi-Attention + FFN
+    + BERT_base: L=12，H=768，A=12，total parameter = 110M  (其中，A是自注意力头的个数)
+    + BERT_large：L=24，H=1024，A=16，total_parameter = 340M
++ 随机mask：只在准备数据时做mask，相当于只mask一次；并且会替换原有单词的一个部分，比如: phi ##am ##mon ---> phi [MASK] ##mon
++ next sentence predict(NSP)：正例是文章中连续的两个句子，而负例则是从两篇文档中各选一个句子构造而成；
++ character-level BPE
++ Gelu激活函数：由于Relu激活函数缺乏随机因素而改进——其实是dropout、zoneout、Relu的结合
+    + 公式：Gelu(x) = x·P(X<=x)，P符从正态分布
+        + 近似计算：Gelu(x) = 0.5·x·(1+tanh(sqrt(2/pi)·(x+0.044715·x·x·x)))
++ bert中的优化器:
++ 由于采用的是transformer结构，能并发执行;
++ 缺点：
+    + 训练数据和测试数据之间不一致性(Discrephancy)：训练时会随机mask，测试时不会造成的；
+        + 缓解策略：修改为每批次只对15%的训练数据处理，并且80%概率将字符用[MASK]标记，10%概率随机替换，10%概率保持不变；
+    + 由于每批次只对15%的标记进行预测，导致模型需要更多的训练步骤；
+    + 当多个连续的TOKENS都被[MASK]标记时，BERT会假设这些单词之间是独立的；
+    + 由于是Denoising auto-encoder结构，无法像NNLM模型做句子或文本生成；
+    + 对长文本任务效果较不明显；
++ 改进方向
+    + 针对MASK时只对单词的部分字符进行MASK，可以采用whole word masking技术优化，比如：phi ##am ##mon ---> [MASK][MASK][MASK]
+    + 针对静态MASK，可以采用动态MASK方法；
+
+### XLNet
++ 排列语言模型
+    + 给出所有组合：比如序列[1,2,3,4]，组合有24种
+        + 假如预测目标是3，
+    + 实现思路：双流注意力机制，在transformer中attention层实现mask，对一个句子的末尾k个词进行mask
+    
++ 采用相对位置编码和transformer-xl结构
+    + 对长文本任务效果有较好提升
+
++ 采用更大的数据量
+
++ 相比bert
+    + 采用auto-regression模型，可以完成生成任务
+    + 解决mask的负面影响：训练时有mask，测试时没有mask
+    + 双流注意力机制
+    + 引入transformer-xl
+
++ **https://zhuanlan.zhihu.com/p/70257427**
+
+### Albert——降低参数量、减少内存、提升模型效果
++ 加大隐层维度，并将词向量分解：bert中原始词向量大小为V×E(E==H)，由于词嵌入学习的是与上下文无关的表示，隐层学习的是与上下文相关的表示，后者更加复杂，所以需要增加隐层的大小；
+由于E==H，增加隐层大小又会带来词向量空间太大，因此打破E和H的关系，将V×H分解为V×E和E×H；
++ 多层共享参数：1）共享feed-forward network参数；2）共享attention参数；3）共享全部参数；
++ 提出Sentence-order prediction (SOP)来取代NSP：1）NSP这种方式由于两篇文档的话题通常不同，模型会更多的通过话题去分析两个句子的关系，而不是句子间的连贯性；2）其正例与NSP相同，但负例是通过选择一篇文档中的两个连续的句子并将它们的顺序交换构造的。
++ 增加模型的层数或隐层大小确实能够在一定程度上提升模型的表现。但当大小增加到一定量时，反而会使模型表现变差。
++ 加入额外数据能提升模型表现；由于没有过拟合，去除DropOut后表现更好；
++ warm-start，训练深层网络(12层)时，可以先训练浅层网络(6层)，再在基础上做微调，这样能加快收敛——为啥考虑6层:可能考虑到全局参数共享吧；
++ 缺点：
+    + 模型推理时间并没有减少，因为层数还是这么多；（减少层数能减少推理时间——贝壳找房：《ALBERT在房产领域的实践》）
+
+### RoBERTa
++ 训练时间更长
++ batch_size加大，从BERT的256增大到了2K甚至8K
++ 训练数据加大
++ 移除NSP损失
++ 训练序列更长：数据连续的从一个或多个文档上获取直至512，文档间采用标识符分开
++ static mask：不同于bert中mask机制，1）首先，数据复制dupe_factor份；2）同一条数据用不同的mask，并且用于不同的epoch；
++ dynamic mask：动态调整MASK机制，喂给模型时随机mask
++ byte-level BPE：
++ 修改优化器，将优化器中二阶矩估计的超参数beta_2从0.999减小到0.98，并将防止分母为0的超参数epsilon从1e-8增大到1e-6；
+
+### WordPiece
+## Byte-Pair Encoding(BPE)：字节对编码
++ 第一步，构建词典、统计词频：{词：词频}，
++ 第二步，对词按字母切分，然后添加</w>表示结尾，
++ 第三步，找出出现次数最多的两个字符进行合并
++ 重复第三步直至达到设置频率阈值
+    ```
+    原始词表 {'l o w e r </w>': 2, 'n e w e s t </w>': 6, 'w i d e s t </w>': 3, 'l o w </w>': 5}
+    出现最频繁的序列 ('s', 't') 9
+    合并最频繁的序列后的词表 {'n e w e st </w>': 6, 'l o w e r </w>': 2, 'w i d e st </w>': 3, 'l o w </w>': 5}
+    出现最频繁的序列 ('e', 'st') 9
+    合并最频繁的序列后的词表 {'l o w e r </w>': 2, 'l o w </w>': 5, 'w i d est </w>': 3, 'n e w est </w>': 6}
+    出现最频繁的序列 ('est', '</w>') 9
+    合并最频繁的序列后的词表 {'w i d est</w>': 3, 'l o w e r </w>': 2, 'n e w est</w>': 6, 'l o w </w>': 5}
+    出现最频繁的序列 ('l', 'o') 7
+    合并最频繁的序列后的词表 {'w i d est</w>': 3, 'lo w e r </w>': 2, 'n e w est</w>': 6, 'lo w </w>': 5}
+    出现最频繁的序列 ('lo', 'w') 7
+    合并最频繁的序列后的词表 {'w i d est</w>': 3, 'low e r </w>': 2, 'n e w est</w>': 6, 'low </w>': 5}
+    出现最频繁的序列 ('n', 'e') 6
+    合并最频繁的序列后的词表 {'w i d est</w>': 3, 'low e r </w>': 2, 'ne w est</w>': 6, 'low </w>': 5}
+    出现最频繁的序列 ('w', 'est</w>') 6
+    合并最频繁的序列后的词表 {'w i d est</w>': 3, 'low e r </w>': 2, 'ne west</w>': 6, 'low </w>': 5}
+    出现最频繁的序列 ('ne', 'west</w>') 6
+    合并最频繁的序列后的词表 {'w i d est</w>': 3, 'low e r </w>': 2, 'newest</w>': 6, 'low </w>': 5}
+    出现最频繁的序列 ('low', '</w>') 5
+    合并最频繁的序列后的词表 {'w i d est</w>': 3, 'low e r </w>': 2, 'newest</w>': 6, 'low</w>': 5}
+    出现最频繁的序列 ('i', 'd') 3
+    合并最频繁的序列后的词表 {'w id est</w>': 3, 'newest</w>': 6, 'low</w>': 5, 'low e r </w>': 2}
+    ```
+
+### BatchNorm和LayerNorm
++ LayerNorm
+    + transformer中使用LayerNorm：主要是利用正态分布公式对词向量进行归一化，让模型更好的学习特征分布，更快收敛
++ BatchNorm
+    + BatchNorm主要是对同一batch中的同一维度进行归一化，即对[batch_size, seq_size, embed]中[batch_size, seq_size]进行归一化
++ 为什么nlp中不适用BatchNorm？
+    + 一个batch中句子长度不一样，反而会增大方差
+    + 一个batch中的token关联性不大
+    + BatchNorm会使得Bacth的均值和方差不稳定
+    + LayerNorm能够对self-attention处理得到的向量进行归一化，降低方差，加速收敛
+    
+
+### NER
+> 命名实体识别：named entity recognize，从文本中识别出命名性指称项，为关系抽取等任务做铺垫；
+> 任务：识别出人名PER、地名LOC、组织机构名ORG；（时间、货币名称等实体类型可以用正则等识别）
+
++ 传统方法
+    + 基于规则的方法：例如，对于中文来说，“说”、“老师”等词语可作为人名的下文，“大学”、“医院”等词语可作为组织机构名的结尾，还可以利用到词性、句法信息。
+    + 基于特征模板的方法：将NER视作序列标注任务，利用已训练模型对句子的各个位置进行标注；方法：特征模板+常用模型：HMM、CRF等
+        + 特征模板+CRF：特征模板是人工定义的二值特征函数，试图挖掘命名实体内部以及上下文的构成特点。对于句子中的给定位置来说，提特征的位置是一个窗口，即上下文位置。不同的特征模板之间可以组合形成一个新的特征模板。CRF的优点在于其为一个位置标注的过程中可以利用到此前已经标注的信息，利用Viterbi解码得到最优序列。对句子中的各个位置提取特征时，满足条件的特征取值为1，不满足条件的特征取值为0；然后把特征喂给CRF，training阶段建模标签的转移，进而在inference阶段为测试句子的各个位置做标注。
+    + 基于神经网络的方法：RNN+CRF
+        + 输入X：[x_1,...,x_n]
+        + RNN
+            + 输入：[batch, seq_length] ===> [batch, seq_length, seq_embed]
+            + 输出P：[batch, seq_length, label_num]
+        + CRF：[batch, seq_length, label_num] + [label_num+2, label_num+2] ===> [batch, label_num]
+            + 参数矩阵A：[label_num+2, label_num+2]，A_ij表示从第i个标签到第j个标签的转移得分
+            + 加2的原因：句子首部添加起始状态，尾部添加终止状态；
+        + 输出Y：[y_1,...,y_n]
+        + score函数：一部分是RNN输出的P决定，一部分是由CRF的转移矩阵A
+            + 对于一个句子，x为该句子序列，y为该句子的标注序列，p为RNN输出，A为转移矩阵
+                + score(x,y) = sum_i(1,n)(p_(i,y(i))) + sum_i(1,n+1)(A_(y(i-1)_y(i)))
+        + 输出：P(y|x) = exp(score(x,y))/(sum_y'(exp(score(x,y'))))
+        + 缺点：对每个token打标签是独立的分类，无法直接利用上文已经预测的标签，导致最后预测的标签序列是不合理的，例如：B-PER后面是不可能跟I-LOC。
+
++ 标注集
+    + BIO标注集
+        + B-PER、I-PER代表人名首字、人名非首字
+        + B-LOC、I-LOC代表地名首字、地名非首字
+        + B-ORG、I-ORG代表组织机构名首字、组织机构名非首字
+        + O代表该字不属于命名实体的一部分
