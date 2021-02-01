@@ -348,6 +348,35 @@
 ### transformer
 + attention中scaled的作用
     + 当Q和K维度很大时，点积结果会很大，不经过scaled处理，使得softmax会将元素最大的位置非常接近1(类似one-hot)，导致反向传播求导时梯度为0(梯度消失)。
++ 绝对位置编码
+    + 公式：(U_i + E_i)*(W_q)*(W_k)*(U_j+E_j) = (E_i*W_q*W_k*E_j)+(E_i*W_q*W_k*U_j)+(U_i*W_q*W_k*E_j)+(U_i*W_q*W_k*U_j)
++ self-attention
+    + 核心：用文本中其它词来增强目标词的语义表示，更好地利用上下文信息；
+    + 公式：softmax(Q*K/sqrt(d))*V
+    + attention中Q、K、V为什么要先乘以权重？
+        + 通过乘以不同权重，能对随机的embedding先做一个拟合，获得相对来说更好的表示；
+        + 通过乘以不同权重使得Q、K、V都不一样，能更好地利用上下文信息；
+    + attention那块Q、K、V能全部一样吗？
+        + 不能，由于Q,K是用来计算权重的，如果Q,K都一样的话，Q与K点积后，肯定是自身值最大，导致softmax后权重最大的都是自身；
+    + 如果attention中Q、K乘以权重，V不乘权重可以吗？
+        + 理论上是可以的，不过V乘权重后能获得更好的表示而不是随机值；
+    + attention为什么做放缩？
+        + 能将方差控制为1，有效控制梯度消失的问题；
+    + 为啥使用multi-head?
+        + multi-head可以注意到不同子空间的信息，捕捉更加丰富的特征信息；
++ transform什么地方做了权重共享？
+    + encoder和decoder见的embedding层权重共享；
+    + decoder中embedding层和fc层权重共享；
+
+### transformer-xl
++ 段级循环：将长文本分成segment，下一segment会利用缓存的前一segment的隐向量（缓存的隐向量只参与前向传播，不参与后向传播）
+    + 具体做法：
+        + attention处：query维度为[segment_length, hidden_size]、key维度为[2*segment_length, hidden_size]、value维度为[2*segment_length, hidden_size]
++ 相对位置编码
+    + 公式：(E_i*W_q*W_k*E_j)+(E_i*W_q*W_k*R_(i-j))+(u*W_k*E_j)+(v*W_k*R_(i-j))
+        + 将所有U_j修改为R_(i-j)，表示对key来说将绝对位置转换为相对query(i)的位置；
+        + U_i表示query相关的绝对位置向量，改为相对位置后，query就和自己的位置无关，所以将U_i*W_q用与位置无关的u和v代替，u和v需要训练；
+    + 相对位置的窗口小于等于4
 
 ### bert
 + 只用了transformer-encoder结构：Multi-Attention + FFN
@@ -371,6 +400,22 @@
 + 改进方向
     + 针对MASK时只对单词的部分字符进行MASK，可以采用whole word masking技术优化，比如：phi ##am ##mon ---> [MASK][MASK][MASK]
     + 针对静态MASK，可以采用动态MASK方法；
++ 输入
+    + 3种词向量
+        + 词的embedding；
+        + 位置的embedding；
+        + segment的embedding；
+            + 为了将多个句子区分：第一个句子全为0，第二个句子全为1，...
+            + 只有一个句子时，全用0表示；
+    + 句子开头有特殊符[CLS]，句子结尾有特殊符[SEP]；
+    + 如果两个句子同时输入，则只有开头有[CLS]，后面的句子没有[CLS]，句子结尾符只有后一个句子有[SEP]；
+    + **句子开头的[CLS]本身无任何意义，但是它能表示整个句子的语义**
++ 问题
+    + bert如何处理梯度消失和梯度爆炸？
+        + short_cut
+        + layerNorm
+        + attention中Q和K的点积会除以维度
+        + 激活函数
 
 ### XLNet
 + 排列语言模型

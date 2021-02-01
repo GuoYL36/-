@@ -373,8 +373,8 @@
 + job：一个action操作就是一个job，一个job有多个stage
 + stage: 一个transform操作就是一个stage；
     + stage切分点：根据**窄依赖**和**宽依赖**，宽依赖和窄依赖的边界就是stage切分点
-        + 窄依赖：父RDD数据只进入到一个子RDD；
-        + 宽依赖：父RDD数据进入到不同的子RDD；
+        + 窄依赖：父RDD数据只进入到一个子RDD，===》一对一；
+        + 宽依赖：父RDD数据进入到不同的子RDD，===》多对多；
 + task：一个partition就是一个task;
 + 计算资源**空转**情况：RDD有18个分区(task)，分配10个executor，每个executor有2-core，则同一时刻只有18个cores在处理task，其余2个空转；
 + 计算资源不足情况：RDD有20个分区（task），分配9个executor，每个executor有2-core，则计算这个RDD需要2轮；
