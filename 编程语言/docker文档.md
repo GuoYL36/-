@@ -142,7 +142,11 @@
 			+ ip::containerPort
 			+ hostPort:containerPort(主机端口:容器端口)
 			+ containerPort
+        + --add-host hostname:127.0.0.1：指定当前容器的主机名及ip地址
+        + --privileged: container内的root是否拥有真正的root权限；如果不加这个参数，container内的root只是外部的一个普通用户权限。
     + command：所有linux的命令，默认/bin/bash
+    + 例子
+        + sudo docker run --name hadoop-slave1 -t -i -d --add-host hadoop-slave1:127.0.0.1 --privileged hadoop-slave1:2.0 /bin/bash
 + 查看容器id和镜像id对应的方法：在本地shell中(非容器)运行docker ps
 + 列出docker中当前所有正在运行的容器：docker ps [options]
 	+ options：
@@ -168,7 +172,17 @@
 + 不进入正在运行的容器但以命令行交互：docker exec -t 容器ID shell命令 
 + 从容器内拷贝文件到主机上(在宿主机上操作)：docker cp 容器ID:文件路径 宿主机路径
  
+# 修改docker容器的主机名
++ 第一步，创建容器：docker run --name hadoop-master -t -i -d --add-host hadoop-master:127.0.0.1 --privileged 镜像名:版本号 /bin/bash
++ 第二步，进入已运行的容器：docker exec -it 容器id(容器名) /bin/bash
++ 第三步，修改主机名：hostname hadoop-master   同时也在这里面修改下：vim /etc/hostname
++ 第四部，退出容器：exit
++ 第五部，重新进入容器中：docker exec -it 容器id(容器名) /bin/bash
 
+# docker容器与宿主机端口映射
++ 宿主机与docker容器端口映射
+    + 11115是宿主机端口，172.18.0.3:8083 是容器ip和容器内部服务端口
+    sudo iptables -t nat -A  DOCKER -p tcp --dport 11115 -j DNAT --to-destination 172.18.0.3:8083   
 
 mysql端口：3306
 tomcat端口：8080
