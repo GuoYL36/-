@@ -278,6 +278,21 @@ test_writer.close()
 ```
 ----
 
+## tensorflow打印网络结构
+> 在keras中，构建好计算图后，直接使用summary函数就能打印整个计算图，那tensorflow中如何打印呢?
+```python
+import tensorflow as tf
+# 第一步：构建计算图
+......
+# 第二步：打印所有变量
+    variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
+    for v in variables:
+        print(v)
+
+# 第三步：初始化所有变量，train部分代码
+with tf.Session() as tf:
+    ......
+```
 
 
 

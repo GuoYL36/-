@@ -39,6 +39,12 @@
 SMOTE算法：x + rand(0,1)*(x_1 - x)，这里x是原始样本，x_1是x的近邻样本    
     
 2、label-smoothing，拟合更快，效果会优于mix-up+dropout，但参数要合适
+    '''
+    def ls_loss(y_true, y_pred, e=0.1):
+        loss1 = tf.keras.backend.categorical_crossentropy(y_true, y_pred)
+        loss2 = tf.keras.backend.categorical_crossentropy(tf.keras.backend.ones_like(y_pred)/num_classes, y_pred)
+        return (1-e)*loss1 + e*loss2
+    '''
 3、disturb-Label
 4、pseduo-label
 5、cutMix

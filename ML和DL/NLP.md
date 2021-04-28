@@ -365,7 +365,7 @@
     + 为啥使用multi-head?
         + multi-head可以注意到不同子空间的信息，捕捉更加丰富的特征信息；
 + transform什么地方做了权重共享？
-    + encoder和decoder见的embedding层权重共享；
+    + encoder和decoder间的embedding层权重共享；
     + decoder中embedding层和fc层权重共享；
 
 ### transformer-xl

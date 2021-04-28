@@ -52,3 +52,107 @@
 ### Feature disentanglement
 > 为了使关于特征分离的讨论更具量化性，本文提出了两种测量特征解纠缠的新方法：1、感知路径长度 - 在两个随机输入之间进行插值时测量连续图像（VGG16嵌入）之间的差异。剧烈的变化意味着多个特征一起发生了变化，并且表示他们是纠缠的；2、线性可分性 - 将输入进行二分类，例如男性和女性。分类越好，特征就越可分离。通过比较输入向量z和中间向量w的metrics，作者表明w中的特征明显更加可分。这些metrics还显示了与1或2层相比，在Mapping Network中选择8个layers的好处。
 
+
+## 推荐系统
+
+### deep neural networks for youtube recommendations
++ 特征
+    + - word2vec：用来学习video ID的embedding
+    + - 用户观看历史：由video ID组成，embedding取平均
+    + - 搜索历史：对query进行unigrams tokenize和bigrams tokenize，然后对token取平均
+    + - 人口结构特征：
+    + - 地理区域：embedded
+    + - 设备: embedded
+    + - 用户性别、登录状态、年龄(将值归一化)：直接输入网络
++ 3.3节
+    + （1）训练好的模型如何处理implicit bias现象？业务指标
+    + （2）对于不稳定的流行视频，训练时采用“age”，预测时将“age”设置为0或者负数？这个是常规操作，类似于特征处理时的空值处理方式
+    + 推荐涉及解决“代理问题”和将结果转换成特定内容？“代理问题”：用户不是通过youtube官网直接观看的，而是在第三方观看，所以训练集里都用了这些数据
+
++ 为什么不直接用逻辑回归，而用加权逻辑回归？为什么预测时使用的加权逻辑回归，而serving时是用e^(wx+b)预测时长？
+    + 
++ serving函数为什么是e^(wx+b)？
+    + odds = p/(1-p)，这里p=sigmoid，log(p/(1-p))=wx+b，所以如果training使用p/(1-p)，serving就可以使用e^(wx+b)
++ 为什么serving函数是预测用户的观看时长？
+    + 首先为什么要预测用户观看时长，是因为认为video的观看时长才最能代表用户是否喜好video
+    
+
++ 为什么准备数据的时候，是从每个用户随机抽取定量的数据？
+    + 为了消除活跃用户的影响：因为如果直接取用户数据的话，活跃用户数据量大，导致损失倾向于活跃用户；
+
++ 为什么不直接用mse来直接优化时长，而是用odds？
+    + 因为实验发现，用odds能加快收敛。
+    + 如果用mse的话，优化时长会出现观看时长为负数的情况，这种情况按理说可以限制负数直接为0，但这样也会有问题？
+        + “如果预测为负值，可以直接置为0”，这么做会让所有预测为负值的样本得分都一样，无法排序，也无法在用于后面的业务流程，信息损失比较大。
++ 训练例子：来自于所有youtube的观看视频，而不仅仅是在推荐上的视频
+
+
+### deep interest network(DIN)
++ 创新点：
+    +（1）目前embedding学习的长度都是固定的，但是为了更好的学习不同人的兴趣，这里使用局部激活单元(local activation unit)来更好的学习表征
+    +（2）优化训练，减少训练参数：i) mini-batch aware regularizer，节约正则开销，避免过拟合；ii) data adaptive activation function
++ 特征表示
+    + multi-group categorial form
+        + 比如：[weekday=Friday, gender=Female, visited_cate_ids={Bag,Book}, ad_cate_id=Book]
+        + 两种形式：one-hot、multi-hot
+    + embeddings
+        + one-hot：对应一个向量；
+        + multi-hot：对应多个向量；(利用pooling层将embedding vector list转换成固定长度向量)
+    + multi-hot的embedding最后变成固定长度向量限制了用户不同兴趣的表达能力
+        + **引入local activation unit**：对每个用户行为embedding向量加权重（计算每个向量与广告向量之间的相似度）
+            + 类似attention，但是这里权重之和会大于1
+                + 为什么attention里最后的权重都归一化了，而这里没有归一化？
+                + 文章中解释说不归一化的目的是一定程度上近似保留用户兴趣意图，我这里的理解：文章中说将权重总和用来近似该广告激发用户兴趣的程度，可能是因为不同广告激发程度不一样，如果归一化的话，那所有广告对用户的激发程度就是一样了。
+                + 不归一化又引出一个问题：因为归一化的目的是使数据相对集中，如果不归一化的话，数据的差异性估计会很大，这个怎么处理？
+                + 猜测后面的fn有归一化操作
++ 模型优化
+    + mini-batch aware regularizer，节约正则开销，避免过拟合；
+        + 由于模型中还会输入一些细粒度特征，比如goods_id，如果没有正则，会导致模型在训练完第一个epoch时性能急剧下降。
+        + 由于稀疏输入和上亿参数，不适合直接使用l1和l2正则？
+            + 用l2正则举例：由于l2正则是直接应用于所有参数，而模型中只需要对一部分非零稀疏特征的参数需要更新，这会造成计算开销很大。
+            + 本文只在稀疏特征的参数上计算l2正则
+    + data adaptive activation function
+        + PReLU激活函数在值为0处是个硬调整点(hard rectified point)，不适合当每层输入都符从不同分布的情况
+        + dice激活函数：根据输入数据的分布自适应调整rectified point
+            + f = p(x)*x+(1-p(x))*a*x   p(x)=1/(1+e^(-(x-E[x])/sqrt(Var[x]+epsilon))), epsilon=1e-8，训练阶段，E[x]和Var[x]是mini-batch计算得到，测试阶段，E[x]和Var[x]是滑动平均。
+            + 相比PReLU，Dice激活函数更平滑
+
++ tricks:针对大数据
+    + Dropout：每个样本随机丢弃50%的feature ids
+    + Filter：通过共现频率过滤visited goods_id，仅留下最高频的；本文中设置前2亿good_ids留下
+    + Regularization in DiFacto：与frequent features相关的参数很少over-regularized
+    + MBA：Mini-Batch Aware正则，正则参数值设置为0.01
++ 问题
+
+### deep interest extract network
++ 创新点：
+    + 对“兴趣进化现象(interest evolving phenomenon)”进行建模
+    + DIN是直接把行为当作兴趣，而本文设计了一个兴趣捕获层。由于GRU的hidden state是很少专注兴趣表征，所以这里增加auxiliary loss，使用连续行为去监督每一步hidden state学习；
+    + 设计interest evolving layer，使用AUGRU(attention update gate)强化与目标item的兴趣，克服兴趣漂移(interest drifting)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+
+
+
+
+
+
