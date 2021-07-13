@@ -13,6 +13,7 @@
         - [查看文件及文件夹大小](#查看文件及文件夹大小)
     - [退出xshell后linux程序后台运行](#退出xshell后linux程序后台运行)
     - [tmux使用](#tmux使用)
+	- [创建用户及用户组](#创建用户及用户组)
     
     
     
@@ -200,3 +201,10 @@
     + 光标切换到下方窗格：tmux select-pane -D
     + 光标切换到左边窗格：tmux select-pane -L
     + 光标切换到右边窗格：tmux select-pane -R
+
+
+## 服务器创建用户及用户组
+> 新建 dmdba用户
++ 创建用户所在的组：groupadd dinstall
++ 创建用户：useradd -g dinstall -m -d /home/dmdba -s /bin/bash dmdba
++ 修改用户密码: passwd dmdba
