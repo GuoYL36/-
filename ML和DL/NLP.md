@@ -346,6 +346,14 @@
 ----
 
 ### transformer
+> 参考：https://jalammar.github.io/illustrated-transformer/
+> ![img_43.png](img_43.png)
+> ![img_44.png](img_44.png)
++ encoder模块和decoder模块的区别
+    + decoder模块在encoder模块的基础上加了一个**mask multi-head attention**，并且decoder中multi-head attention中的key和value来自encoder的输出。
+        + 为什么要mask multi-head attention？
+            + 第一，由于在预测t时刻的时候，只能利用t时刻前的信息，所以attention矩阵是一个左下三角矩阵；
+            + 第二，先对自身做一个attention获取更好的表示
 + attention中scaled的作用
     + 当Q和K维度很大时，点积结果会很大，不经过scaled处理，使得softmax会将元素最大的位置非常接近1(类似one-hot)，导致反向传播求导时梯度为0(梯度消失)。
 + 绝对位置编码
@@ -353,20 +361,61 @@
 + self-attention
     + 核心：用文本中其它词来增强目标词的语义表示，更好地利用上下文信息；
     + 公式：softmax(Q*K/sqrt(d))*V
-    + attention中Q、K、V为什么要先乘以权重？
+    + **对于encoder和decoder中的第一层，都是输入的X，利用线性层将X映射成不同的query、key、value**
+	+ **decoder模块中，Masked Multi-head Attention的query、key、value都是来自上一个decoder模块的输出经过线性映射得到；对于Multi-head Attention，query是来自Masked Multi-Head Attention的输出经线性映射得到，key和value是来自最后一个encoder模块的输出经线性映射得到的**
+	+ attention中为了得到Q、K、V，会对输入X进行一个线性映射，为什么？
         + 通过乘以不同权重，能对随机的embedding先做一个拟合，获得相对来说更好的表示；
         + 通过乘以不同权重使得Q、K、V都不一样，能更好地利用上下文信息；
+        + 能够控制Q、K、V的向量维度；
     + attention那块Q、K、V能全部一样吗？
         + 不能，由于Q,K是用来计算权重的，如果Q,K都一样的话，Q与K点积后，肯定是自身值最大，导致softmax后权重最大的都是自身；
     + 如果attention中Q、K乘以权重，V不乘权重可以吗？
         + 理论上是可以的，不过V乘权重后能获得更好的表示而不是随机值；
-    + attention为什么做放缩？
-        + 能将方差控制为1，有效控制梯度消失的问题；
+    + attention为什么要除以维度进行放缩？
+        + 如果不放缩的话，当值很大时，softmax进入了梯度为0的区域，所以放缩可以有效控制梯度消失的问题；
     + 为啥使用multi-head?
         + multi-head可以注意到不同子空间的信息，捕捉更加丰富的特征信息；
+    + 为什么用dot-product attention？
+        + 效率高，空间利用率高
++ multi-head attention的3种应用
+    + encoder和decoder层相连接处，query来自之前的decoder层的上一层输出，key和value来自encoder的输出
+    + encoder层里的self-attention：key、value、query都来自上一encoder的输出
+    + decoder层里的self-attention：跟encoder层里self-attention一样，只利用位置i之前的信息，保留自回归属性——计算attention的时候，利用mask将后置信息设置为**负无穷**
++ Position-wise Feed-Forward Networks
+    + 两个全连接层，第一层包含ReLU激活函数；
+    + FFN(x) = max(0, x*W_1+b_1)*W_2+b_2
++ Positional Encoding
+![img_45.png](img_45.png)
+    
+    + 其中，pos为位置，i为维度
+    + 比较了上述encoding方式和自学习embedding方式，两者效果差不多
+    + 为啥选择sin方式进行位置编码？
+        + 第一，sin的方式可以学习到相对位置信息，因为sin(pos+k)可以拆分为sin(pos)cos(k)+cos(pos)sin(k)
+        + 第二，相对于训练学习，sin的方式能够让模型推断出更长序列；
++ Dropout
+    + Residual Dropout：multi-head attention的输出要dropout
+    + embedding后要dropout
+
 + transform什么地方做了权重共享？
     + encoder和decoder间的embedding层权重共享；
     + decoder中embedding层和fc层权重共享；
++ transformer中能有效控制梯度消失的几个地方？
+	+ attention计算时对数据进行scaled
+	+ shortcut操作；
+	+ layerNorm;
++ 优势
+    + 相比lstm，训练能够并行执行；
+    + 引入attention能获得更长的记忆；
++ 存在问题
+    + 无法处理长序列数据；
+    + 在decoder端，预测下一个单词正确的前提是该单词前面的单词都正确(因为decoder端用到了这些信息)
++ 相比较于 RNN 和 CNN，为什么使用self-attention？
+![img_46.png](img_46.png)
+  
+    + 每层总计算复杂度：当序列长度小于向量维度时，self-attention最快；(当序列长度很长时，可以只考虑附近长度为r)
+    + 并行计算量：
+    + 长距离依赖的路径长度：
+
 
 ### transformer-xl
 + 段级循环：将长文本分成segment，下一segment会利用缓存的前一segment的隐向量（缓存的隐向量只参与前向传播，不参与后向传播）
