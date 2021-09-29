@@ -18,8 +18,75 @@
     - [WordPiece](#WordPiece)
     - [BatchNorm和LayerNorm](#BatchNorm和LayerNorm)
     - [NER](#NER)
-	
-	
+    
+
+### 分词方法
++ 基于匹配规则的方法
+    + 最大匹配算法：假设给定词典["你","有","意见","分歧","有意见"]，最大匹配窗口window=5，给定句子"你有意见分歧"
+        + 前向最大匹配
+            + "你有意见分"->"你有意见"->"你有意"->"你有"->"你"；
+            + "有意见分歧"->"有意见分"->"有意见"
+            + "分歧"->"分歧"
+        + 后向最大匹配
+            + "有意见分歧"->"意见分歧"->"见分歧"->"分歧"
+            + "你有意见"->"有意见"
+            + "你"->"你"
++ 基于概率统计的方法：语言模型、HMM、CRF等
+    + 考虑语言模型：将句子分词成多种可能的组合，然后利用语言模型计算每种分词的概率，概率最大者为分词最好的情况
+        + 什么是语言模型？
+            + 用来计算一个句子的概率模型: P(w1,w2,w3,...,wn) = P(w1)*P(w2|w1)*P(w3|w1,w2)*...*P(wn|w1,w2,...,wn-1)
+        + unigram模型：P(w1,w2,w3,...,wn) = P(w1)*P(w2)*P(w3)*...P(wn)
+            + 齐次马尔可夫假设：词与词之间是独立的
+            + 概率P(wi)为词频  
+        + bigram模型：P(w1,w2,w3,...,wn) = P(w1)*P(w2|w1)*P(w3|w2)*...P(wn|wn-1)
+            + 齐次马尔可夫假设：当前词出现的概率仅与前面一个词有关
+            + 概率P(wi|wi-1)为共现频率
+        + 评估语言模型效果
+            + 方法1：使用一个特定任务来评估语言模型A和语言模型B
+            + 方法2：Perplexity(困惑度)
+                + 公式：2^(-x)，x为average log likelihood function
+                    + x: P(w1,w2,w3,...,wn)
+        + 语言模型存在问题：
+            + 由于分词和概率计算分开，所以复杂度高
+            + 对于没有共现次数的词，即count(w1,w2)=0，如何计算P(w1,w2)？
+                + 利用smoothing方法
+                    + Add-one Smoothing(Laplace smoothing): P(w2|w1) = (count(w1,w2)+1)/(count(w1)+V)，V为词典大小——加V能够保证概率之和为1
+                    + Add-K Smoothing：P(w2|w1) = (count(w1,w2)+K)/(count(w1)+KV)，V为词典大小
+                    + Interpolation：平滑时考虑uni-gram、bi-gram、tri-gram
+                    + Good-Turning Smoothing：核心思想当前未出现的情况在未来不一定不会出现
+
+    + 维特比算法——DP算法
+        + 由于语言模型存在分词和概率计算分开的问题，所以维特比算法将分词和概率计算结合进行计算
+        + 具体流程
+            + 首先，构建句子序列图，边代表一个词，边权代表转移概率，找出所有可能的边；
+            + 然后，利用dp算法计算生成这个句子的最大概率值(最小负的对数似然);
+        ![img_55.png](img_55.png)
+
+### 拼写纠错
++ 第一种方法
+    + 对字典中所有词遍历一次，计算与当前词的编辑距离，找出最小的；
+    + 缺点：
+        + 时间复杂度高
++ 第二种方法
+    + 由于一般纠错控制在1-2位，所以可以利用insert、delete、replace操作生成所有可能的组合，再进行过滤得到最有可能正确的词。
+    + 如何过滤？
+        + 计算每种组合的概率乘积值，找出最大的组合
+
+### 信息检索——倒排表
++ 问题：给定一个question，从知识库(<question,answer>)中找出相关的answer
++ 传统解决方法：计算每个question与知识库中question的相似度——复杂度高
++ 层次过滤+**倒排**解决思路
+    + 层次过滤：核心思想是按层次过滤掉不太相关的question，使得最后参与计算相似度的数量非常少，过滤方法由简单到复杂。
+        + 首先，可以对词典库中的每个词与<question,answer>做成倒排表的形式
+        + 对给定的question进行分词，然后找出各个词对应的<question, answer>
+        + 对上述结果求交集，并提供给下一层进行过滤
+        + 由于上述是通过uni-gram的方式去做的，后续过滤可以采用bi-gram、tri-gram等的方式去做
+        + 最后，计算给定question与少量<question,answer>的相似度进行返回
+
+### 条件随机场CRF
++ 给定观测序列O=(b1,b2,b3)，发射序列X=(a1,a2,a3)，状态序列P
+    + 求P(O=b2|X=a2)、P(X=a2|X=a1)
+
 ### TF-IDF
 + TF：term frequency，词频，表示词在文本中出现的频率；
 + IDF：Inverse Document Frequency，逆向文件频率，为总文件数目除以包含该词的文件数量；
@@ -63,6 +130,15 @@
 
 + **为什么有了层序softmax后还要负采样的方法？**
 	+ 虽然层序softmax可以提高模型的训练效率，但是如果训练样本中的中心词是一个**生僻词**，那么模型得到的Huffman编码就是一个很长的序列。
+
++ **word2vec中skip-gram和CBOW哪个对生僻词好一点？**
+    + 从学习过程来讲，CBOW好一点，因为假如中心词是生僻词，那可以通过上下文来推测这个词
+
++ **实验证明，层次softmax训练出来的生僻词向量要优于负采样训练出来的**
+
++ **如何评估词向量的好坏？**
+    + 利用tsne降维可视化展示，相邻近的词向量语义相似
+    + 利用测试集计算词与词之间的相似度
 ----
 
 ### Glove
@@ -77,7 +153,11 @@
 
 ### 为什么有了word2vec，还要Glove、ELMO等？
 + word2vec
-	+ 学习到词之间的类比信息，适合局部间存在很强关联性的文本，但是缺乏词与词之间的共现信息。词义相近的词对贡献次数多，词义差得比较远的词对共现次数比较少，但是其实它们的区分度并不明显。
+	+ **学习到词之间的类比信息**，适合局部间存在很强关联性的文本，但是缺乏词与词之间的共现信息。词义相近的词对贡献次数多，词义差得比较远的词对共现次数比较少，但是其实它们的区分度并不明显。
+    + **没有考虑词序问题、没有学到句子层面信息**
+    + 受限于窗口大小的限制，不能考虑整个句子中所有词的相关性
+    + 与bert对比，word2vec学到的是静态词向量，**不能学到一词多义的信息**，针对上下文词相同但中心词语义相反的情况向量表征会相似，不符合逻辑，但是bert会利用nsp任务来消除这种影响
+        + 例子：”你今天来的太早了。现在还不到8点。“和 ”你今天来的太晚了。现在已经11点了。“
 + Glove
 	+ 对word-pair共现进行建模，拟合不同word-pair的共现之间的差异。
 	+ 相比于word2vec，Glove更容易并行化，速度更快。
@@ -85,6 +165,7 @@
 	+ 前两者学到某个词的词向量是固定的，不能很好处理一词多义。ELMO是基于整个语料训练的，而不是窗口，因而能更好地表达一个词。
 + Bert
 	+ Bert中利用mask的方法有点像负采样，只不过Bert是基于整个语料做的，Bert主要是推翻了现有的对于某个任务必须特定的模型结构这一做法。
+    + Bert可以学到一词多义；
 ----
 
 ### BPE
@@ -319,7 +400,7 @@
             V = tf.reshape(V, (-1, tf.shape(V)[1], nb_head, size_per_head))
             V = tf.transpose(V, [0, 2, 1, 3])
             #计算内积，然后mask，然后softmax
-            A = tf.matmul(Q, K, transpose_b=True) / tf.sqrt(float(size_per_head))
+            A = tf.matmul(Q, Kf, transpose_b=True) / tf.sqrt(float(size_per_head))
             A = tf.transpose(A, [0, 3, 2, 1])
             A = Mask(A, V_len, mode='add')
             A = tf.transpose(A, [0, 3, 2, 1])
@@ -354,6 +435,10 @@
         + 为什么要mask multi-head attention？
             + 第一，由于在预测t时刻的时候，只能利用t时刻前的信息，所以attention矩阵是一个左下三角矩阵；
             + 第二，先对自身做一个attention获取更好的表示
+    + transformer在推理阶段的过程是什么样？
+        + 对于第一个词，完全利用encoder端的输出和起始标志<SOS>预测
+        + 对于后续要预测的词，利用decoder已经预测出的词加上其position embedding作为输入进行预测，这里也会用到encoder端的输出
+    + **transformer的decoder端是一个softmax函数，其输出维度等于字典的维度**
 + attention中scaled的作用
     + 当Q和K维度很大时，点积结果会很大，不经过scaled处理，使得softmax会将元素最大的位置非常接近1(类似one-hot)，导致反向传播求导时梯度为0(梯度消失)。
 + 绝对位置编码
@@ -540,8 +625,10 @@
 ### BatchNorm和LayerNorm
 + LayerNorm
     + transformer中使用LayerNorm：主要是利用正态分布公式对词向量进行归一化，让模型更好的学习特征分布，更快收敛
+    + LN后的均值和方差维度: [batch_size, seq_size, 1]
 + BatchNorm
     + BatchNorm主要是对同一batch中的同一维度进行归一化，即对[batch_size, seq_size, embed]中[batch_size, seq_size]进行归一化
+    + BN后的均值和方差维度: [1, seq_size,embed]
 + 为什么nlp中不适用BatchNorm？
     + 一个batch中句子长度不一样，反而会增大方差
     + 一个batch中的token关联性不大
