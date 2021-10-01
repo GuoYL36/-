@@ -18,7 +18,6 @@
     - [WordPiece](#WordPiece)
     - [BatchNorm和LayerNorm](#BatchNorm和LayerNorm)
     - [NER](#NER)
-    
 
 ### 分词方法
 + 基于匹配规则的方法
@@ -423,6 +422,19 @@
 > seq2seq的解码过程如上图的概率公式所示，每次递归过程都是选择当前最大概率的输出（贪心搜索），这种搜索方案的结果未必最优。seq2seq使用beam search的折中方案。
 
 + 思想：在每次计算前，只保留当前最优的top k个候选结果。比如：当k=3时，第一步选择使得概率最大的前3个值，然后分别递归计算下一时刻的每个值的概率，然后各取前3个值，这样的话就是9种组合了，然后计算每一种组合的总概率，选择最大的前3个，依次递归直至出现<end>为止。**k=1时为贪心搜索**
+
+----
+
+### Seq2Seq Attention
++ 计算Attention中的权重值方法
+![img_57.png](img_57.png)
+![img_58.png](img_58.png)
+
++ 下图做法
+    + 第一步，将encoder端最后一个隐藏向量hm作为s0，然后计算s0与h1...hm之间的attention得到权重值，然后对hi进行权重求和得到记忆向量c0；
+    + 第二步，concat拼接记忆向量ci、状态向量si、decoder端输入xi，计算得到状态向量s(i+1)，然后计算s(i+1)与h1...hm之间的attention得到权重值，然后对hi进行权重求和得到记忆向量c(i+1)，后面继续这一步的迭代；
+![img_59.png](img_59.png)
+![img_60.png](img_60.png)
 
 ----
 
