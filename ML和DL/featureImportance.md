@@ -88,15 +88,15 @@ cpdef compute_feature_importances(self, normalize=True):
 
 ### XGBoost模型的特征重要性计算
 > 源码位于https://github.com/zengfanxi/xgboost/blob/master/python-package/xgboost/core.py中get_score函数
-
+> 
 + get_score函数参数
 	+ fmap：包含特征名称映射关系的txt文档；
 	+ importance_type：importance的计算类型，有以下5个取值
 		+ weight：权重（某特征在整个树群节点中出现的次数，出现越多，价值就越高）
 		+ gain：（某特征在整个树群作为分裂节点的信息增益之和再除以某特征出现的频次）
-		+ total_gain（同上，代码中有介绍，这里total_gain就是gain）
-		+ cover：某个特征节点样本的二阶导数和除以该特征出现的频次
-		+ total_cover
+		+ total_gain（某特征在整个树群作为分裂节点的信息增益之和）
+		+ cover：某个特征在整个树群作为分裂节点覆盖的样本总数除以出现次数
+		+ total_cover：某个特征在整个树群作为分裂节点覆盖的样本总数
 
 get_dump获取树结构信息：
 ```python
