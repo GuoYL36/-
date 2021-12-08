@@ -101,7 +101,25 @@
     + 文本摘要
     
 ----
+### LSTM
+![img_75.png](img_75.png)
+![img_76.png](img_76.png)
++ C表示长期记忆（细胞状态）、h表示短期记忆
++ 遗忘门：决定要遗忘和保留C_(t-1)的哪些部分，比如说当前有新主语了，需要把之前的主语丢弃
+![img_77.png](img_77.png)  
++ 记忆门：长期记忆C中需要更新的信息，包含两部分——更新信息i_t和候选信息
+  ![img_78.png](img_78.png)
++ 输出门：长期记忆中需要输出的信息去更新短期记忆
+![img_79.png](img_79.png)
 
+### GRU
+![img_92.png](img_92.png)
+![img_93.png](img_93.png)
++ 更新门：用于控制前一时刻的状态信息被带入到当前状态中的程度，更新门的值越大说明前一时刻的状态信息带入越多。
++ 重置门：控制前一状态有多少信息被写入到当前的候选集 h~t 上，重置门越小，前一状态的信息被写入的越少。
+
+
+----
 ### word2vec
 > 输入层+映射层+输出层
 > 两种模型：skip-gram模型、CBOW模型
@@ -118,6 +136,7 @@
 + **模型训练方法**
 	+ 负采样
 		+ 背景词是出现在中心词时间窗口内的词。噪声词是和中心词不同时出现在该时间窗口的词，噪声词由噪声词分布采样得到。噪声词分布可以是字典中的所有词的词频概率组成（一般是单字概率的3/4次方）。
+            + 取概率的3/4的原因：一种平滑策略，让低频词出现多一些
 	+ 层序softmax
 		+ 构建huffman树(数据结构)
 			+ 第一步，统计每个word的词频，根据词频对word从大到小排序，构建字典；第二步，从字典中选出2个词频最小的word作为叶子结点并构建父结点，从词典中将这2个word删除；第三步，从剩余的字典中选择词频最小的word作为叶子结点，并与刚才构建的父结点一起构建新的父结点，然后，将这个word从字典中删除；第四步，重复第3步直至字典为空，此时完成huffman树的构建。
@@ -138,6 +157,15 @@
 + **如何评估词向量的好坏？**
     + 利用tsne降维可视化展示，相邻近的词向量语义相似
     + 利用测试集计算词与词之间的相似度
+
++ **为什么负采样能得到和softmax一样的效果？**
+    + 参考：https://www.zhihu.com/question/321088108
+    + 从目标函数上看，负采样近似NCE，而NCE近似softmax（参考https://zhuanlan.zhihu.com/p/368939108）  
+    + negative sampling(NEG)、noise contrast estimate(NCE)、全局softmax都可以用来训练词向量，但后两者还可以用来训练语言模型(NCE是softmax的近似)。
+        + 理论上，当采样数k等于25时，NCE近似softmax
+    + 从目标损失函数上看，两者比较类似
+    ![img_91.png](img_91.png)
+
 ----
 
 ### Glove
@@ -430,8 +458,13 @@
 ![img_57.png](img_57.png)
 ![img_58.png](img_58.png)
 
++ 上图1做法
+    + 双向lstm用于分类的attention具体实现
+        + 第一步，对双向lstm的两个结果相加(拼接也行，不过会增加数据量)得到向量c，并用tanh激活函数进行非线性转换；
+        + 第二步，然后向量c与参数矩阵V相乘后，利用softmax激活函数求注意力权重；
+        + 第三步，最后将权重应用到输入向量c中；
 + 下图做法
-    + 第一步，将encoder端最后一个隐藏向量hm作为s0，然后计算s0与h1...hm之间的attention得到权重值，然后对hi进行权重求和得到记忆向量c0；
+    + 第一步，将encoder端最后一个隐藏向量hm作为状态向量s0，然后计算s0与h1...hm之间的attention得到权重值，然后对hi进行权重求和得到记忆向量c0；
     + 第二步，concat拼接记忆向量ci、状态向量si、decoder端输入xi，计算得到状态向量s(i+1)，然后计算s(i+1)与h1...hm之间的attention得到权重值，然后对hi进行权重求和得到记忆向量c(i+1)，后面继续这一步的迭代；
 ![img_59.png](img_59.png)
 ![img_60.png](img_60.png)
@@ -451,10 +484,12 @@
         + 对于第一个词，完全利用encoder端的输出和起始标志<SOS>预测
         + 对于后续要预测的词，利用decoder已经预测出的词加上其position embedding作为输入进行预测，这里也会用到encoder端的输出
     + **transformer的decoder端是一个softmax函数，其输出维度等于字典的维度**
-+ attention中scaled的作用
++ attention中scaled的作用(为什么除以sqrt(d)？)
     + 当Q和K维度很大时，点积结果会很大，不经过scaled处理，使得softmax会将元素最大的位置非常接近1(类似one-hot)，导致反向传播求导时梯度为0(梯度消失)。
+    + 第二，因为q和k满足均值为0，方差为1的分布，q*k后服从均值为0，方差为d的分布，所以除以sqrt(d)是为了满足均值为0，方差为1的分布。（参考https://www.zhihu.com/question/339723385/answer/782509914）
+    ![img_82.png](img_82.png)
 + 绝对位置编码
-    + 公式：(U_i + E_i)*(W_q)*(W_k)*(U_j+E_j) = (E_i*W_q*W_k*E_j)+(E_i*W_q*W_k*U_j)+(U_i*W_q*W_k*E_j)+(U_i*W_q*W_k*U_j)
+    + 公式：(U_i + E_i)*(W_q)*(W_k)*(U_j+E_j) = (E_i*W_q*W_k*E_j)+(E_i*W_q*W_k*U_j)+(U_i*W_q*W_k*E_j)+(U_i*W_q*W_k*U_j)    
 + self-attention
     + 核心：用文本中其它词来增强目标词的语义表示，更好地利用上下文信息；
     + 公式：softmax(Q*K/sqrt(d))*V
@@ -472,8 +507,11 @@
         + 如果不放缩的话，当值很大时，softmax进入了梯度为0的区域，所以放缩可以有效控制梯度消失的问题；
     + 为啥使用multi-head?
         + multi-head可以注意到不同子空间的信息，捕捉更加丰富的特征信息；
+        + 将embedding维度分割后，减少了耦合度，能增加泛化性；
     + 为什么用dot-product attention？
         + 效率高，空间利用率高
+    + 如何并行化？
+        + 相对RNN无法实现并行是因为要考虑序列依赖信息，而self-attention不需要。
 + multi-head attention的3种应用
     + encoder和decoder层相连接处，query来自之前的decoder层的上一层输出，key和value来自encoder的输出
     + encoder层里的self-attention：key、value、query都来自上一encoder的输出
@@ -486,9 +524,22 @@
     
     + 其中，pos为位置，i为维度
     + 比较了上述encoding方式和自学习embedding方式，两者效果差不多
-    + 为啥选择sin方式进行位置编码？
+    + 为什么要引入position encoding？  
+        + 因为在attention阶段，没有位置信息，任何语序计算得结果都会相同，这明显不合理。
+    + 理想的position encoding设计应该遵循的条件？
+        + 为每个时间步输出唯一的编码
+        + 即便句子长度不一致，句子中两个时间步之间的距离应该是“恒定”的
+        + 可以轻易泛化到更长的句子上
+        + position encoding必须是确定的
+    + 为什么用线性函数(1,2,3,...)不行？
+        + 这种编码方式的值区间太大了，如果实际中遇到的句子比训练句子更长，会导致模型效果差，即泛化性能差。
+    + 那将编码取值范围控制在[0,1]范围，避免线性函数值太大的问题？
+        + 由于不同句子中单词个数不一样，这样做会导致相邻单词之间的距离不固定。
+    + 为啥选择cos-sin方式进行位置编码？
+        + 值域在[-1,1]
         + 第一，sin的方式可以学习到相对位置信息，因为sin(pos+k)可以拆分为sin(pos)cos(k)+cos(pos)sin(k)
         + 第二，相对于训练学习，sin的方式能够让模型推断出更长序列；
+
 + Dropout
     + Residual Dropout：multi-head attention的输出要dropout
     + embedding后要dropout
@@ -506,13 +557,12 @@
 + 存在问题
     + 无法处理长序列数据；
     + 在decoder端，预测下一个单词正确的前提是该单词前面的单词都正确(因为decoder端用到了这些信息)
-+ 相比较于 RNN 和 CNN，为什么使用self-attention？
++ 相比较于 RNN 和 CNN，为什么使用self-attention？（为什么不用seq2seq中attention，而改用self-attention?）
 ![img_46.png](img_46.png)
-  
     + 每层总计算复杂度：当序列长度小于向量维度时，self-attention最快；(当序列长度很长时，可以只考虑附近长度为r)
-    + 并行计算量：
-    + 长距离依赖的路径长度：
-
+    + 并行计算量（Sequential Operations）：最少需要的序列操作数
+    + 长距离依赖的路径长度(Maximum Path Length)：序列中两个元素进行交互所需经过的最大路径长度
+    + 参考https://zhuanlan.zhihu.com/p/264749298
 
 ### transformer-xl
 + 段级循环：将长文本分成segment，下一segment会利用缓存的前一segment的隐向量（缓存的隐向量只参与前向传播，不参与后向传播）
@@ -528,8 +578,20 @@
 + 只用了transformer-encoder结构：Multi-Attention + FFN
     + BERT_base: L=12，H=768，A=12，total parameter = 110M  (其中，A是自注意力头的个数)
     + BERT_large：L=24，H=1024，A=16，total_parameter = 340M
-+ 随机mask：只在准备数据时做mask，相当于只mask一次；并且会替换原有单词的一个部分，比如: phi ##am ##mon ---> phi [MASK] ##mon
-+ next sentence predict(NSP)：正例是文章中连续的两个句子，而负例则是从两篇文档中各选一个句子构造而成；
++ 预训练任务
+    + 随机mask(类似完形填空)：只在准备数据时做mask，相当于只mask一次；并且会替换原有单词的一个部分，比如: phi ##am ##mon ---> phi [MASK] ##mon
+        + 每批次只对15%的训练数据处理，并且80%概率将字符用[MASK]标记，10%概率随机替换，10%概率保持不变；
+        + 为什么要mask？
+            + 用上下文词去预测被mask的词
+        + 为什么要随机替换？
+            + 告诉模型有可能该位置上的词也可能是错的，增加语义信息；
+        + 为什么要保持不变？
+            + bias the representation towards the actual observed word。（让模型在学习过程中告知模型应该怎么去学）
+        + 为什么选取15%的训练数据作处理？
+            + 因为训练批次会随着这个概率增大而增加，导致收敛很慢。
+        + 为什么随机替换是15%里的10%？
+            + 这个概率不会影响模型的语言理解能力
+    + next sentence predict(NSP)：正例是文章中连续的两个句子，而负例则是从两篇文档中各选一个句子构造而成；
 + character-level BPE
 + Gelu激活函数：由于Relu激活函数缺乏随机因素而改进——其实是dropout、zoneout、Relu的结合
     + 公式：Gelu(x) = x·P(X<=x)，P符从正态分布
@@ -553,16 +615,34 @@
         + segment的embedding；
             + 为了将多个句子区分：第一个句子全为0，第二个句子全为1，...
             + 只有一个句子时，全用0表示；
+        + 为什么将3种词向量相加，而不是concat？
+            + 两种方式应该都可以，因为后续会利用线性变换进行重新组合，并且这种方式参数量会更少。
     + 句子开头有特殊符[CLS]，句子结尾有特殊符[SEP]；
     + 如果两个句子同时输入，则只有开头有[CLS]，后面的句子没有[CLS]，句子结尾符只有后一个句子有[SEP]；
     + **句子开头的[CLS]本身无任何意义，但是它能表示整个句子的语义**
++ 参数量计算：以12层、隐层768维、12个multi-head attention的head，总共110M（参考https://zhuanlan.zhihu.com/p/357353536或https://github.com/google-research/bert/issues/656）
+    + embedding参数：词向量、位置向量、句子类型(bert用了2个句子，为0和1)——vocab_size=30522，hidden_size=768，max_position_embeddings=512，token_type_embeddings=2
+        + token embedding：词表大小词向量维度就是对应的参数了，也就是30522*768 
+        + segment embedding：主要用01来区分上下句子，那么参数就是2*768
+        + position embedding：文本输入最长为512，那么参数为512*768
+        + 总参数量：(30522+2+512)*768=23835648
+    + multi-head attention参数：每个含有12个head
+        + QKV权重矩阵参数量：768*768/12*3
+        + 线性变换：768*768
+        + 总参数量(12个multi-head)：(768*768/12*3*12+768*768)*12=28311552
+    + layer normalization参数：用在embedding层后、multi-head attention后、feed forward后
+        + 主要是gamma（768维）和beta（768维）的参数：768*2+12*(768*2+768*2)=38400
+    + FFN参数：两个全连接层——中间维度为3072
+        + 12*(768*3072+3072*768)=56623104
+
 + 问题
     + bert如何处理梯度消失和梯度爆炸？
         + short_cut
         + layerNorm
         + attention中Q和K的点积会除以维度
         + 激活函数
-
+    + bert中损失需要去除没有mask的词，还是计算所有词的损失？
+        + bert模型有一个输入是features["masked_lm_ids"]，有一个函数get_masked_lm_output就是用来获取[mask]位置的输出以供计算loss的，没有mask的位置是不需要参与计算loss的。
 ### XLNet
 + 排列语言模型
     + 给出所有组合：比如序列[1,2,3,4]，组合有24种
@@ -605,6 +685,16 @@
 + 修改优化器，将优化器中二阶矩估计的超参数beta_2从0.999减小到0.98，并将防止分母为0的超参数epsilon从1e-8增大到1e-6；
 
 ### WordPiece
+## 真正的wordPiece实现：与BPE的不同之处在于，它是基于语言模型去合并的
++ 步骤
+    + 1. 获得足够大的语料库。
+    + 2. 定义所需的子词词汇量。
+    + 3. 将单词拆分为字符序列。
+    + 4. 用文本中的所有字符初始化词汇表。
+    + 5. 根据词汇建立语言模型。
+    + 6. 通过将当前词汇表中的两个单元组合以将词汇表增加一个来生成新的子词单元。 从所有可能性中选择新的子词单位，这会在添加到模型时最大程度地增加训练数据的可能性。
+    + 7. 重复第5步，直到达到子词词汇量(在第2步中定义)，或者似然性增加降至某个阈值以下。
+
 ## Byte-Pair Encoding(BPE)：字节对编码
 + 第一步，构建词典、统计词频：{词：词频}，
 + 第二步，对词按字母切分，然后添加</w>表示结尾，

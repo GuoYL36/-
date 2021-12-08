@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="edbf00e2-f9aa-459f-953a-b41c4d8125d4" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectId" id="1hGd9oMe6VA3WKbEK0c2XnaDS1O" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../模型线上部署/dssm-master" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\gyl\tensorflow_keras\tensorflowWithKeras" />
+      <recent name="D:\gyl\tensorflow_keras" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.tf_keras_middle_layer">
+    <configuration name="model_load" type="PythonConfigurationType" factoryName="Python">
+      <module name="tensorflow_keras" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="D:\Program Files\python\python3\python3.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="D:\gyl\tensorflow_keras\tensorflowWithKeras\tf_keras_load_model.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="tensorflowWithKeras" type="PythonConfigurationType" factoryName="Python">
+      <module name="tensorflow_keras" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="D:\Program Files\python\python3\python3.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tensorflowWithKeras" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tensorflowWithKeras/tensorflowWithKeras.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="tf_keras_middle_layer" type="PythonConfigurationType" factoryName="Python">
+      <module name="tensorflow_keras" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="D:\Program Files\python\python3\python3.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tensorflowWithKeras" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tensorflowWithKeras/tf_keras_middle_layer.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="tf_save_var" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="tensorflow_keras" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="D:\Program Files\python\python3\python3.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tensorflowWithKeras" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tensorflowWithKeras/tf_save_var.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="tf_useKeras" type="PythonConfigurationType" factoryName="Python">
+      <module name="tensorflow_keras" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="D:\Program Files\python\python3\python3.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="D:\gyl\tensorflow_keras\tensorflowWithKeras\tf_keras_save_model.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="tf_with_layer_wise_learningrate" type="PythonConfigurationType" factoryName="Python">
+      <module name="tensorflow_keras" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="D:\Program Files\python\python3\python3.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tensorflowWithKeras" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tensorflowWithKeras/tf_with_layer_wise_learningrate.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="xgboost_binary" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="tensorflow_keras" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="D:\Program Files\python\python3\python3.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="D:\gyl\tensorflow_keras\xgboost_binary.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="xgboost_multiClass" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="tensorflow_keras" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="D:\Program Files\python\python3\python3.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/xgboost_multiClass.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="xgboost_regression" type="PythonConfigurationType" factoryName="Python">
+      <module name="tensorflow_keras" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="D:\Program Files\python\python3\python3.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/xgboost_regression.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Python.model_load" />
+      <item itemvalue="Python.tensorflowWithKeras" />
+      <item itemvalue="Python.tf_useKeras" />
+      <item itemvalue="Python.tf_with_layer_wise_learningrate" />
+      <item itemvalue="Python.xgboost_regression" />
+      <item itemvalue="Python.tf_keras_middle_layer" />
+      <item itemvalue="Python.tf_save_var" />
+      <item itemvalue="Python.xgboost_binary" />
+      <item itemvalue="Python.xgboost_multiClass" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.xgboost_binary" />
+        <item itemvalue="Python.xgboost_multiClass" />
+        <item itemvalue="Python.tf_save_var" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="edbf00e2-f9aa-459f-953a-b41c4d8125d4" name="Default Changelist" comment="" />
+      <created>1599641214155</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1599641214155</updated>
+      <workItem from="1599641216447" duration="23119000" />
+      <workItem from="1599814349268" duration="2775000" />
+      <workItem from="1600047967414" duration="45000" />
+      <workItem from="1600073239226" duration="25896000" />
+      <workItem from="1601187998793" duration="106000" />
+      <workItem from="1611132080267" duration="10848000" />
+      <workItem from="1614222919357" duration="8694000" />
+      <workItem from="1614237346637" duration="5507000" />
+      <workItem from="1620383504550" duration="4486000" />
+      <workItem from="1620611371244" duration="17000" />
+      <workItem from="1620617003807" duration="12956000" />
+      <workItem from="1620636873371" duration="3272000" />
+      <workItem from="1620816358942" duration="2358000" />
+      <workItem from="1620884656781" duration="61000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="49" y="25" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1620820118190">
+      <screen x="0" y="0" width="1280" height="720" />
+    </state>
+    <state x="49" y="25" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1280.720@0.0.1280.720" timestamp="1620820118190" />
+    <state x="407" y="187" key="FileChooserDialogImpl" timestamp="1620884717800">
+      <screen x="0" y="0" width="1280" height="720" />
+    </state>
+    <state x="407" y="187" key="FileChooserDialogImpl/0.0.1280.720@0.0.1280.720" timestamp="1620884717800" />
+    <state width="1237" height="561" key="GridCell.Tab.0.bottom" timestamp="1620821150883">
+      <screen x="0" y="0" width="1280" height="720" />
+    </state>
+    <state width="1237" height="561" key="GridCell.Tab.0.bottom/0.0.1280.720@0.0.1280.720" timestamp="1620821150883" />
+    <state width="1237" height="561" key="GridCell.Tab.0.center" timestamp="1620821150883">
+      <screen x="0" y="0" width="1280" height="720" />
+    </state>
+    <state width="1237" height="561" key="GridCell.Tab.0.center/0.0.1280.720@0.0.1280.720" timestamp="1620821150883" />
+    <state width="1237" height="561" key="GridCell.Tab.0.left" timestamp="1620821150883">
+      <screen x="0" y="0" width="1280" height="720" />
+    </state>
+    <state width="1237" height="561" key="GridCell.Tab.0.left/0.0.1280.720@0.0.1280.720" timestamp="1620821150883" />
+    <state width="1237" height="561" key="GridCell.Tab.0.right" timestamp="1620821150883">
+      <screen x="0" y="0" width="1280" height="720" />
+    </state>
+    <state width="1237" height="561" key="GridCell.Tab.0.right/0.0.1280.720@0.0.1280.720" timestamp="1620821150883" />
+    <state x="325" y="185" key="com.intellij.ide.util.TipDialog" timestamp="1620884668179">
+      <screen x="0" y="0" width="1280" height="720" />
+    </state>
+    <state x="325" y="185" key="com.intellij.ide.util.TipDialog/0.0.1280.720@0.0.1280.720" timestamp="1620884668179" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/tensorflow_keras$tensorflowWithKeras.coverage" NAME="tensorflowWithKeras Coverage Results" MODIFIED="1600162353180" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tensorflowWithKeras" />
+    <SUITE FILE_PATH="coverage/tensorflow_keras$model_load.coverage" NAME="model_load Coverage Results" MODIFIED="1599812843650" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/tensorflow_keras$xgboost_quanzhogn.coverage" NAME="xgboost_binary Coverage Results" MODIFIED="1620384651775" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/tensorflow_keras$xgboost_binary.coverage" NAME="xgboost_binary Coverage Results" MODIFIED="1620637364495" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/tensorflow_keras$xgboost_multiClass.coverage" NAME="xgboost_multiClass Coverage Results" MODIFIED="1620636889552" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/tensorflow_keras$tf_useKeras.coverage" NAME="tf_useKeras Coverage Results" MODIFIED="1599739191696" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/tensorflow_keras$xgboost_binary__1_.coverage" NAME="xgboost_binary (1) Coverage Results" MODIFIED="1620384635274" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/tensorflow_keras$tf_save_var.coverage" NAME="tf_save_var Coverage Results" MODIFIED="1611202150342" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tensorflowWithKeras" />
+    <SUITE FILE_PATH="coverage/tensorflow_keras$tf_with_layer_wise_learningrate.coverage" NAME="tf_with_layer_wise_learningrate Coverage Results" MODIFIED="1614324621365" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tensorflowWithKeras" />
+    <SUITE FILE_PATH="coverage/tensorflow_keras$xgboost_regression.coverage" NAME="xgboost_regression Coverage Results" MODIFIED="1620636901621" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/tensorflow_keras$tf_keras_middle_layer.coverage" NAME="tf_keras_middle_layer Coverage Results" MODIFIED="1620820608439" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tensorflowWithKeras" />
+  </component>
+</project>

@@ -1,0 +1,3 @@
+此文件夹旨在学习如何同时使用tensorflow和tensorflow.keras
+
+注意：保证~/.keras/keras.json中"backend"的值为"tensorflow".
